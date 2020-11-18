@@ -328,7 +328,7 @@ function filterResults() {
       card.style.display = "flex";
     })
 
-    updateCounter();
+    updateShowingCounter();
   }, 0)
 }
 
@@ -340,17 +340,13 @@ function populateDepartmentFilter() {
   $("#department-filter").html(Department.getHtmlOptions());
 }
 
-
-function selectTab() {
-
-}
-
 // Updates the counter in Seach Results title bar
-function updateCounter() {
+function updateShowingCounter() {
   let total = 0;
   let totalVisible = 0;
   $(".person-card").each( (i, obj) => {
-    if (obj.style.display === "flex") {
+    // On load, obj.style.display is "" for some reason. The || is used for this reason.
+    if (obj.style.display === "flex" || obj.style.display === "") {
       totalVisible++;
     }
     total++;
@@ -411,6 +407,7 @@ async function initSetup() {
   Personnel.populateSearchResults(false);
   populateLocationFilter();
   populateDepartmentFilter();
+  updateShowingCounter();
 }
 
 initSetup();
