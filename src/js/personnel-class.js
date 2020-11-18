@@ -1,5 +1,0 @@
-class Personnel {
-  constructor() {
-    
-  }
-}
