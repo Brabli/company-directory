@@ -7,6 +7,8 @@ html {
 :root {
   --navbar-grey: rgb(76, 76, 76);
   --selected-grey: rgb(171, 171, 171);
+  --backing-grey: rgb(120, 120, 120);
+  --selected-orange: rgb(255, 98, 0);
 }
 
 .b-left {
@@ -29,7 +31,7 @@ body {
   height: 1.5rem;
   background-color: var(--navbar-grey);
   color: snow;
-  padding-left: 0.3rem;
+  padding: 0 0.3rem;
   font-size: 0.8rem;
   border-bottom: 1px solid black;
 }
@@ -85,6 +87,15 @@ body {
   width: 100%;
 }
 
+.results-bar {
+  justify-content: space-between;
+}
+
+.showing-counter {
+  font-size: 0.6rem;
+  color: snow;
+}
+
 .search-results-container {
   height: calc(100% - 12rem);
   display: flex;
@@ -92,14 +103,14 @@ body {
   justify-content: space-around;
   padding: 0.1rem;
   overflow: auto;
-  /* background-color: var(--selected-grey); */
+  background-color: var(--backing-grey);
  /* border-bottom: 1px solid black; */
 }
 
 .person-card {
   font-size: 0.8rem;
   margin: 0.1rem;
-  border: 2px solid black;
+  border: 1px solid black;
   border-radius: 0.5rem;
   height: 9rem;
   width: 32%;
@@ -108,11 +119,12 @@ body {
   flex-direction: column;
   text-align: center;
   justify-content: flex-start;
+  background-color: white;
 }
 
 .person-card:active {
-  border: 4px solid black;
-  background-color: rgb(255, 98, 0);
+  border: 2px solid black;
+  background-color: var(--selected-orange);
 }
 
 .card-data {

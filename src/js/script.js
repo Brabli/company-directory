@@ -99,6 +99,8 @@ class Personnel {
   }
 }
 
+
+
 /* DEPARTMENT CLASS */
 /*~~~~~~~~~~~~~~~~~~*/
 class Department {
@@ -273,7 +275,6 @@ class Location {
 
 /* FUNCTIONS */
 /*~~~~~~~~~~~*/
-
 // These three return true if card is to be filtered, aka hidden.
 function filterDepartment(cardDepartment, filterDepartmentString) {
   if (filterDepartmentString === "All Departments") return false;
@@ -319,9 +320,42 @@ function filterResults() {
 
       obj.style.display = "flex";
     })
+
+    updateCounter();
   }, 0)
 }
 
+function populateLocationFilter() {
+  $("#location-filter").html(Location.getHtmlOptions());
+}
+
+function populateDepartmentFilter() {
+  $("#department-filter").html(Department.getHtmlOptions());
+}
+
+
+function selectTab() {
+
+}
+
+// Updates the counter in Seach Results title bar
+function updateCounter() {
+  let total = 0;
+  let totalVisible = 0;
+  $(".person-card").each( (i, obj) => {
+    if (obj.style.display === "flex") {
+      totalVisible++;
+    }
+    total++;
+  });
+  $(".showing-count").html(totalVisible);
+  $(".total-count").html(total);
+}
+
+
+
+/* EVENT LISTENERS */
+/*~~~~~~~~~~~~~~~~*/
 
 $("#name-filter").on("keydown", e => {
   filterResults();
@@ -341,13 +375,6 @@ $(".tab").on("click", e => {
   $(e.currentTarget).addClass("selected-tab");
 });
 
-function populateLocationFilter() {
-  $("#location-filter").html(Location.getHtmlOptions());
-}
-
-function populateDepartmentFilter() {
-  $("#department-filter").html(Department.getHtmlOptions());
-}
 
 
 // INIT SETUP
