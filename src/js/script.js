@@ -376,9 +376,19 @@ $(".tab").on("click", e => {
 });
 
 
+// Move this out of a timeout, it needs to apply to every newly created card
+// Card Select
+setTimeout(() => {
+  $(".person-card").on("click", e => {
+    $(e.currentTarget).addClass("selected-card");
+    $(e.currentTarget).siblings().removeClass("selected-card");
+  });
+}, 50);
 
-// INIT SETUP
 
+
+
+// INIT SETUP //
 async function initSetup() {
   await Department.getAllDepartments();
   await Location.getAllLocations();
