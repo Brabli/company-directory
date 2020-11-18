@@ -1,0 +1,139 @@
+html {
+  font-size: 16px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  height: 100%;
+}
+
+:root {
+  --navbar-grey: rgb(76, 76, 76);
+  --selected-grey: rgb(171, 171, 171);
+}
+
+.b-left {
+  border-left: 1px solid black;
+}
+.b-right {
+  border-right: 1px solid black;
+}
+
+body {
+  
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.title-bar {
+  display: flex;
+  align-items: center;
+  height: 1.5rem;
+  background-color: var(--navbar-grey);
+  color: snow;
+  padding-left: 0.3rem;
+  font-size: 0.8rem;
+  border-bottom: 1px solid black;
+}
+
+.tab-container {
+  height: 2rem;
+  display: flex;
+}
+
+.tab {
+  width: 25%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: snow;
+  border-bottom: 1px solid black;
+}
+
+.selected-tab {
+  background-color: var(--selected-grey);
+  border-bottom: none;
+  font-weight: bold;
+}
+
+.search-menu {
+  height: 6rem;
+  background-color: var(--selected-grey);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  border-bottom: 1px solid black;
+}
+
+.filter-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-top: 0.5rem;
+  /* padding-bottom: 0.2rem; */
+  width: 85%;
+}
+
+.filter-container label {
+  border-bottom: 1px dotted black;
+  font-size: 0.85rem;
+  padding-right: 1rem;
+  padding-bottom: 0.1rem;
+}
+
+.filter-container select, .filter-container input {
+  height: 1.2rem;
+  width: 100%;
+}
+
+.search-results-container {
+  height: calc(100% - 12rem);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding: 0.1rem;
+  overflow: auto;
+  /* background-color: var(--selected-grey); */
+ /* border-bottom: 1px solid black; */
+}
+
+.person-card {
+  font-size: 0.8rem;
+  margin: 0.1rem;
+  border: 2px solid black;
+  border-radius: 0.5rem;
+  height: 9rem;
+  width: 32%;
+  max-width: 12rem;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: flex-start;
+}
+
+.person-card:active {
+  border: 4px solid black;
+  background-color: rgb(255, 98, 0);
+}
+
+.card-data {
+  width: 100%;
+  padding: 0.1rem;
+  overflow-wrap: break-word;
+  /* border-bottom: 1px dotted black; */
+  
+}
+
+.card-name {
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.card-email {
+  font-size: 0.5rem;
+}
+
+.edit-tabs {
+  height: 2rem;
+  background-color: var(--selected-grey);
+  border-top: 1px solid black;
+}

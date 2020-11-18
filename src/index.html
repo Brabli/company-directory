@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Directory</title>
+    <meta name="description" content="Manage your company's database via one simple interface" />
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+  </head>
+  <body>
+    
+    <!-- TITLE BAR -->
+    <div class="title-bar">Company Directory</div>
+
+    <!-- TAB BAR -->
+    <div class="tab-container">
+      <div class="tab b-right selected-tab" id="search-tab">SEARCH</div>
+      <div class="tab b-right" id="add-tab">ADD</div>
+      <div class="tab b-right" id="edit-tab">EDIT</div>
+      <div class="tab" id="delete-tab">DELETE</div>
+    </div>
+    
+    <!-- Menu Container -->
+    <div class="menu-container">
+      <!-- SEARCH MENU -->
+      <div class="search-menu">
+        <!-- Name Filter -->
+        <div class="filter-container">
+          <label for="name-filter">NAME</label>
+          <input type="text" id="name-filter">
+        </div>
+        <!-- Department Filter -->
+        <div class="filter-container">
+          <label for="department-filter">DEPARTMENT</label>
+          <select id="department-filter"></select>
+        </div>
+        <!-- Location Filter -->
+        <div class="filter-container">
+          <label for="department-filter">LOCATION</label>
+          <select id="location-filter">
+            
+          </select>
+        </div>
+      </div>
+      <!-- ADD TAB -->
+      <div class="menu" id="add-menu">
+      </div>
+      <!-- EDIT TAB -->
+      <div class="menu" id="edit-menu">
+      </div>
+      <!-- DELETE TAB -->
+      <div class="menu" id="delete-menu">
+      </div>
+    </div>
+    <!-- Search Results Title -->
+    <div class="title-bar">Search Results</div>
+    
+
+  
+    <div class="search-results-container"></div>
+  
+
+
+    <div class="edit-tabs"></div>
+
+
+    <script type="application/javascript" src="js/vendors/jQuery/jquery.js"></script>
+    <script type="application/javascript" src="js/script.js"></script>
+  </body>
+</html>
