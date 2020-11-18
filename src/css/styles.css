@@ -43,6 +43,7 @@ body {
 }
 
 .tab {
+  text-transform: uppercase;
   width: 25%;
   display: flex;
   align-items: center;
@@ -53,18 +54,41 @@ body {
 
 .selected-tab {
   background-color: var(--selected-grey);
-  border-bottom: none;
+  border-bottom-color: var(--selected-grey);
   font-weight: bold;
 }
 
+.menu {
+  display: none;
+  background-color: var(--selected-grey);
+  border-bottom: 1px solid black;
+}
+
+
 .search-menu {
   height: 6rem;
-  background-color: var(--selected-grey);
-  display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  border-bottom: 1px solid black;
+}
+
+.add-menu {
+  height: 8rem;
+}
+
+.edit-menu {
+  height: 8rem;
+}
+
+.delete-menu {
+  height: 6rem;
+}
+
+
+
+
+.selected-menu {
+  display: flex;
 }
 
 .filter-container {
@@ -167,7 +191,6 @@ body {
 .card-location {
   font-weight: bold;
   text-transform: uppercase;
-  
 }
 
 .edit-tabs {
