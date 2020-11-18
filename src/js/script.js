@@ -309,23 +309,23 @@ function filterResults() {
     const filterDepString = $("#department-filter").val();
     const filterLocString = $("#location-filter").val();
 
-    $(".person-card").each( (i, obj) => {
-      // jQuery .each() breaks a bit when inside a timeut, so I couldn't use it here.
+    $(".person-card").each( (i, card) => {
+      // jQuery .each() breaks a bit when inside a timeout, so I couldn't use it here.
       // IE, $(this) refers to the window object instead of the current jQuery object.
-      const cardDepartment = obj.getElementsByClassName("card-department")[0].innerHTML;
-      const cardLocation = obj.getElementsByClassName("card-location")[0].innerHTML;
-      const cardName = obj.getElementsByClassName("card-name")[0].innerHTML;
+      const cardDepartment = card.getElementsByClassName("card-department")[0].innerHTML;
+      const cardLocation = card.getElementsByClassName("card-location")[0].innerHTML;
+      const cardName = card.getElementsByClassName("card-name")[0].innerHTML;
 
       const depFilter = filterDepartment(cardDepartment, filterDepString);
-      if (depFilter) { obj.style.display = "none"; return; };
+      if (depFilter) { card.style.display = "none"; return; };
   
       const locFilter = filterLocation(cardLocation, filterLocString);
-      if (locFilter) { obj.style.display = "none"; return; };
+      if (locFilter) { card.style.display = "none"; return; };
 
       const nameFilter = filterName(cardName, filterNameString);
-      if (nameFilter) { obj.style.display = "none"; return; };
-
-      obj.style.display = "flex";
+      if (nameFilter) { card.style.display = "none"; return; };
+      // If card does not get flagged by the filter, set display to flex.
+      card.style.display = "flex";
     })
 
     updateCounter();
@@ -378,8 +378,16 @@ $("#department-filter").on("change", e => {
 
 // Tab Change listener
 $(".tab").on("click", e => {
-  $(e.currentTarget).siblings().removeClass("selected-tab");
-  $(e.currentTarget).addClass("selected-tab");
+
+  const $tab = $(e.currentTarget);
+  $tab.addClass("selected-tab");
+  $tab.siblings().removeClass("selected-tab");
+
+  console.log(`.${$tab.html()}-menu`);
+  const $tabMenu = $(`.${$tab.html()}-menu`);
+  $tabMenu.addClass("selected-menu");
+  $tabMenu.siblings().removeClass("selected-menu");
+
 });
 
 
@@ -399,7 +407,8 @@ setTimeout(() => {
 async function initSetup() {
   await Department.getAllDepartments();
   await Location.getAllLocations();
-  Personnel.populateSearchResults(true);
+  await Personnel.getAllPersonnel();
+  Personnel.populateSearchResults(false);
   populateLocationFilter();
   populateDepartmentFilter();
 }
