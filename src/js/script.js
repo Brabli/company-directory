@@ -89,11 +89,17 @@ class Personnel {
       const location = Location.getLocationById(department.locationID)
       $(".search-results-container").append(`
       <div class="person-card">
-        <p class="card-data card-name">${person.firstName} ${person.lastName}</p>
-        <p class="card-data card-email">${person.email}</p>
-        <p class="card-data card-job-title">${person.jobTitle}</p>
-        <p class="card-data card-department">${department.name}</p>
-        <p class="card-data card-location">${location.name}</p>
+        <div class="card-info-group">
+          <p class="card-data card-name">${person.firstName} ${person.lastName}</p>
+          <p class="card-data card-email">${person.email}</p>
+        </div>
+        <div class="card-info-group">
+          <p class="card-data card-job-title">${person.jobTitle}</p>
+        </div>
+        <div class="card-info-group">
+          <p class="card-data card-department">${department.name}</p>
+          <p class="card-data card-location">${location.name}</p>
+        </div>
       </div>`)
     });
   }
@@ -263,7 +269,8 @@ class Location {
   }
 
   static getHtmlOptions() {
-    let locationOptionsString = '<option class="location-option" data-location-id="all">All Locations</option>';
+    let locationOptionsString =
+    '<option class="location-option" data-location-id="all">All Locations</option>';
     Location.locations.forEach(loc => {
       locationOptionsString += `<option class="location-option" data-location-id="${loc.id}" value="${loc.name}">${loc.name}</option>`;
     });
@@ -392,7 +399,7 @@ setTimeout(() => {
 async function initSetup() {
   await Department.getAllDepartments();
   await Location.getAllLocations();
-  Personnel.populateSearchResults();
+  Personnel.populateSearchResults(true);
   populateLocationFilter();
   populateDepartmentFilter();
 }

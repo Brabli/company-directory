@@ -23,6 +23,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  background-color: var(--backing-grey);
 }
 
 .title-bar {
@@ -97,14 +98,18 @@ body {
 }
 
 .search-results-container {
-  height: calc(100% - 12rem);
+  /* For some reason changing this changes the height of all above elements?? */
+  /* I tried to remove it as it's not needed but I don't want to break the other styles... */
+  /* height: calc(100% - 12rem); */
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: flex-start; /* center */
   padding: 0.1rem;
+  padding-left: 0.4rem;
   overflow: auto;
   background-color: var(--backing-grey);
- /* border-bottom: 1px solid black; */
+  /* Margin makes sure Edit Tabs don't cover up search results. */
+  margin-bottom: 2rem;
 }
 
 .person-card {
@@ -118,7 +123,7 @@ body {
   display: flex;
   flex-direction: column;
   text-align: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   background-color: white;
 }
 
@@ -131,20 +136,45 @@ body {
   width: 100%;
   padding: 0.1rem;
   overflow-wrap: break-word;
-  /* border-bottom: 1px dotted black; */
-  
 }
+/* 
+.card-info-group {
+
+} */
 
 .card-name {
+  margin: 0.1rem 0;
   font-size: 0.9rem;
   font-weight: bold;
   text-decoration: underline;
 }
+
 .card-email {
   font-size: 0.5rem;
+  border-bottom: 1px dotted black;
+}
+
+.card-department {
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+/* .card-department::after {
+  content: ",";
+  display: inline;
+} */
+
+.card-location {
+  font-weight: bold;
+  text-transform: uppercase;
+  
 }
 
 .edit-tabs {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   height: 2rem;
   background-color: var(--selected-grey);
   border-top: 1px solid black;

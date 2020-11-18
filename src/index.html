@@ -9,54 +9,56 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
   </head>
   <body>
-    
-    <!-- TITLE BAR -->
-    <div class="title-bar">Company Directory</div>
 
-    <!-- TAB BAR -->
-    <div class="tab-container">
-      <div class="tab b-right selected-tab" id="search-tab">SEARCH</div>
-      <div class="tab b-right" id="add-tab">ADD</div>
-      <div class="tab b-right" id="edit-tab">EDIT</div>
-      <div class="tab" id="delete-tab">DELETE</div>
-    </div>
-    
-    <!-- Menu Container -->
-    <div class="menu-container">
-      <!-- SEARCH MENU -->
-      <div class="search-menu">
-        <!-- Name Filter -->
-        <div class="filter-container">
-          <label for="name-filter">NAME</label>
-          <input type="text" id="name-filter">
+    <div>
+      <!-- TITLE BAR -->
+      <div class="title-bar">Company Directory</div>
+  
+      <!-- TAB BAR -->
+      <div class="tab-container">
+        <div class="tab b-right selected-tab" id="search-tab">SEARCH</div>
+        <div class="tab b-right" id="add-tab">ADD</div>
+        <div class="tab b-right" id="edit-tab">EDIT</div>
+        <div class="tab" id="delete-tab">DELETE</div>
+      </div>
+      
+      <!-- Menu Container -->
+      <div class="menu-container">
+        <!-- SEARCH MENU -->
+        <div class="search-menu">
+          <!-- Name Filter -->
+          <div class="filter-container">
+            <label for="name-filter">NAME</label>
+            <input type="text" id="name-filter">
+          </div>
+          <!-- Department Filter -->
+          <div class="filter-container">
+            <label for="department-filter">DEPARTMENT</label>
+            <select id="department-filter"></select>
+          </div>
+          <!-- Location Filter -->
+          <div class="filter-container">
+            <label for="department-filter">LOCATION</label>
+            <select id="location-filter">
+  
+            </select>
+          </div>
         </div>
-        <!-- Department Filter -->
-        <div class="filter-container">
-          <label for="department-filter">DEPARTMENT</label>
-          <select id="department-filter"></select>
+        <!-- ADD TAB -->
+        <div class="menu" id="add-menu">
         </div>
-        <!-- Location Filter -->
-        <div class="filter-container">
-          <label for="department-filter">LOCATION</label>
-          <select id="location-filter">
-
-          </select>
+        <!-- EDIT TAB -->
+        <div class="menu" id="edit-menu">
+        </div>
+        <!-- DELETE TAB -->
+        <div class="menu" id="delete-menu">
         </div>
       </div>
-      <!-- ADD TAB -->
-      <div class="menu" id="add-menu">
+      <!-- Search Results Title -->
+      <div class="title-bar results-bar">
+        Search Results
+        <span class="showing-counter">Showing <span class="showing-count">100</span> of <span class="total-count">101</span></span>
       </div>
-      <!-- EDIT TAB -->
-      <div class="menu" id="edit-menu">
-      </div>
-      <!-- DELETE TAB -->
-      <div class="menu" id="delete-menu">
-      </div>
-    </div>
-    <!-- Search Results Title -->
-    <div class="title-bar results-bar">
-      Search Results
-      <span class="showing-counter">Showing <span class="showing-count">100</span> of <span class="total-count">101</span></span>
     </div>
     
 
