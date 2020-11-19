@@ -6,8 +6,8 @@ html {
 
 :root {
   --navbar-grey: rgb(76, 76, 76);
-  --selected-grey: rgb(171, 171, 171);
   --backing-grey: rgb(120, 120, 120);
+  --selected-grey: rgb(171, 171, 171);
   --selected-orange: rgb(255, 98, 0);
 }
 
@@ -64,7 +64,6 @@ body {
   border-bottom: 1px solid black;
 }
 
-
 .search-menu {
   height: 6rem;
   flex-direction: column;
@@ -83,9 +82,6 @@ body {
 .delete-menu {
   height: 6rem;
 }
-
-
-
 
 .selected-menu {
   display: flex;
@@ -137,6 +133,7 @@ body {
 }
 
 .person-card {
+  display: flex;
   font-size: 0.8rem;
   margin: 0.1rem;
   border: 1px solid black;
@@ -144,7 +141,6 @@ body {
   height: 9rem;
   width: 32%;
   max-width: 12rem;
-  display: flex;
   flex-direction: column;
   text-align: center;
   justify-content: space-between;
@@ -161,10 +157,6 @@ body {
   padding: 0.1rem;
   overflow-wrap: break-word;
 }
-/* 
-.card-info-group {
-
-} */
 
 .card-name {
   margin: 0.1rem 0;
