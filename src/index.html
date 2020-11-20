@@ -40,12 +40,42 @@
           <div class="filter-container">
             <label for="department-filter">LOCATION</label>
             <select id="location-filter">
-  
             </select>
+          </div>
+          <div class="button reset-filter" id="reset-filter">
+            reset filter
           </div>
         </div>
         <!-- ADD TAB -->
         <div class="menu add-menu" id="add-menu">
+
+          <div class="input-container">
+            <label for="add-first-name">first name</label>
+            <input type="text" id="add-first-name" />
+          </div>
+
+          <div class="input-container">
+            <label for="add-last-name">last name</label>
+            <input type="text" id="add-last-name" />
+          </div>
+
+          <div class="input-container">
+            <label for="add-email">email</label>
+            <input type="text" id="add-email" />
+          </div>
+
+          <div class="input-container">
+            <label for="add-job-title">job title</label>
+            <input type="text" id="add-job-title" />
+          </div>
+
+          <div class="input-container">
+            <label for="add-department">department</label>
+            <select id="add-department"></select>
+          </div>
+
+          <div class="button" id="add-entry" data-id="">create entry</div>
+
         </div>
         <!-- EDIT TAB -->
         <div class="menu edit-menu" id="edit-menu">
@@ -80,6 +110,8 @@
         </div>
         <!-- DELETE TAB -->
         <div class="menu delete-menu" id="delete-menu">
+          <div class="delete-message">Are you sure you want to delete the currently selected entry?</div>
+          <div class="button delete-button" id="delete-entry">DELETE SELECTED</div>
         </div>
       </div>
       <!-- Search Results Title -->

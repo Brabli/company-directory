@@ -57,6 +57,27 @@ body {
   font-weight: bold;
 }
 
+.button {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  width: 6rem;
+  height: 2rem;
+  border: 1px solid black;
+  margin-top: 0.8rem;
+  border-radius: 0.6rem;
+  background-color: var(--backing-grey);
+  color: snow;
+}
+.button:active {
+  /* background-color: var(--selected-orange); */
+  color: var(--selected-orange);
+  border: 2px solid var(--selected-orange);
+}
+
 .menu {
   display: none;
   background-color: var(--selected-grey);
@@ -64,7 +85,7 @@ body {
 }
 
 .search-menu {
-  height: 6rem;
+  height: 8rem;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
@@ -88,11 +109,17 @@ body {
       height: 1.2rem;
       width: 100%;
     }
+    .reset-filter {
+      height: 1.5rem;
+    }
 
 
 .add-menu {
   display: none;
-  height: 8rem;
+  height: 12rem;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .edit-menu {
@@ -127,30 +154,28 @@ body {
       height: 1.2rem;
     }
 
-    .button {
-      text-transform: uppercase;
-      font-size: 0.7rem;
-      display: flex;
-      text-align: center;
-      justify-content: center;
-      align-items: center;
-      width: 6rem;
-      height: 2rem;
-      border: 1px solid black;
-      margin-top: 0.8rem;
-      border-radius: 0.6rem;
-      background-color: var(--backing-grey);
-      color: snow;
-    }
-    .button:active {
-      /* background-color: var(--selected-orange); */
-      color: black;
-      border: 2px solid var(--selected-orange);
-    }
 
 .delete-menu {
   display: none;
   height: 6rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.delete-message {
+  text-align: center;
+  width: 70%;
+}
+
+.delete-button {
+  background-color: rgb(149, 16, 16);
+}
+
+.delete-button:active {
+  border-color: black;
+  background-color: red;
 }
 
 .selected-menu {
@@ -179,7 +204,7 @@ body {
 }
 
 .person-card {
-  display: flex;
+  display: none;
   font-size: 0.8rem;
   margin: 0.1rem;
   border: 1px solid black;

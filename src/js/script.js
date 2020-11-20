@@ -3,6 +3,7 @@
 class Personnel {
 
   static personnel = [];
+  static currentlySelectedId;
 
   // Return array of all personnel rows
   static async getAllPersonnel() {
@@ -111,7 +112,7 @@ class Personnel {
           <p class="card-data card-department">${department.name}</p>
           <p class="card-data card-location">${location.name}</p>
         </div>
-      </div>`)
+      </div>`);
     });
 
     // Card Select Event listener
@@ -120,12 +121,11 @@ class Personnel {
       $card.addClass("selected-card");
       $card.siblings().removeClass("selected-card");
 
-      const personId = $card.data("id").toString();
-
+      Personnel.currentlySelectedId = $card.data("id").toString();
       // TODO Add check here
-      const person = Personnel.getPersonById(personId);
+      const person = Personnel.getPersonById(Personnel.currentlySelectedId);
       // TODO Add active and non-active class to button
-      $("#save-changes").data("id", personId)
+      $("#save-changes").data("id", Personnel.currentlySelectedId)
 
       $("#edit-first-name").val(person.firstName);
       $("#edit-last-name").val(person.lastName);
@@ -134,6 +134,8 @@ class Personnel {
       const personDepartment = Department.getDepartmentById(person.departmentID).name;
       $("#edit-department").val(personDepartment);
     });
+
+    filterResults();
   }
 }
 
@@ -152,7 +154,6 @@ class Department {
     if (resJson["status"]["name"] === "ok") {
       console.log("Successfully retrieved departments!");
       Department.departments = resJson.data;
-      console.log(Department.departments);
     } else {
       console.log("Failed to retrieve departments!");
       return false;
@@ -246,9 +247,8 @@ class Location {
     const res = await fetch("php/getAllLocations.php");
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
-      console.log("Success!");
+      console.log("Successfully got locations!");
       Location.locations = resJson.data;
-      console.log(Location.locations);
     } else {
       console.log("Failed!");
     }
@@ -376,10 +376,14 @@ function populateLocationFilter() {
   $("#location-filter").html(Location.getHtmlOptions());
 }
 
-function populateDepartmentFilter() {
+function populateDepartmentSelects() {
   $("#department-filter").html(Department.getHtmlOptions(true));
-  $("#edit-department").html(Department.getHtmlOptions(false));
+  const optionsWithoutAllDepartments = Department.getHtmlOptions(false);
+  $("#add-department").html(optionsWithoutAllDepartments);
+  $("#edit-department").html(optionsWithoutAllDepartments);
 }
+
+
 
 // Updates the counter in Seach Results title bar
 function updateShowingCounter() {
@@ -395,7 +399,6 @@ function updateShowingCounter() {
   $(".showing-count").html(totalVisible);
   $(".total-count").html(total);
 }
-
 
 
 /* EVENT LISTENERS */
@@ -438,16 +441,53 @@ $("#save-changes").on("click", async e => {
   const departmentId= Department.getDepartmentByName(departmentname).id;
 
   const id = $("#save-changes").data("id");
-  console.log(id);
-  await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
 
+  await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
   // if success...
   await Personnel.populateSearchResults();
 
   // Reselect card
-  $(`[data-id="${id}"]`).addClass("selected-card");
+  $(`.person-card[data-id="${id}"]`).addClass("selected-card");
 })
 
+// ADD TAB Add Entry Button
+$("#add-entry").on("click", async e => {
+  const fName = $("#add-first-name").val();
+  const lName = $("#add-last-name").val();
+  const email = $("#add-email").val();
+  const jobTitle = $("#add-job-title").val();
+
+  const departmentname = ($("#add-department").val());
+  const departmentId= Department.getDepartmentByName(departmentname).id;
+
+  await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
+
+  // if success..
+  await Personnel.populateSearchResults();
+
+  // Reselects card
+  const id = $("#save-changes").data("id");
+  // TODO fix bug which add class incorrectly to create entry button / add button
+  $(`.person-card[data-id="${id}"]`).addClass("selected-card");
+})
+
+// TODO Check to see if something is even selected before activating button
+// DELETE TAB Delete Button
+$("#delete-entry").on("click", async e => {
+  // TODO write a function to select currently selcted person id
+  const id = $("#save-changes").data("id");
+  await Personnel.deletePersonnel(id);
+  await Personnel.populateSearchResults();
+});
+
+// Reset Filter options
+$("#reset-filter").on("click", e => {
+  console.log("HELLO");
+  $("#name-filter").val("");
+  $("#department-filter").val("All Departments");
+  $("#location-filter").val("All Locations");
+  filterResults();
+});
 
 // INIT SETUP //
 async function initSetup() {
@@ -456,7 +496,7 @@ async function initSetup() {
   await Personnel.getAllPersonnel();
   Personnel.populateSearchResults(false);
   populateLocationFilter();
-  populateDepartmentFilter();
+  populateDepartmentSelects();
   updateShowingCounter();
 }
 
