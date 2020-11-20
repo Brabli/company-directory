@@ -81,14 +81,25 @@ class Personnel {
       return false;
     }
   }
+  // TODO refactor this
+  static getPersonById(id) {
+    const person = Personnel.personnel.find(person => {
+      return person.id === id;
+    });
+    return person;
+  }
 
+  // TODO move event listener card click here
   static async populateSearchResults(refresh = true) {
     if (refresh) await Personnel.getAllPersonnel();
+
+    $(".search-results-container").html("");
     Personnel.personnel.forEach(person => {
       const department = Department.getDepartmentById(person.departmentID);
       const location = Location.getLocationById(department.locationID)
+      
       $(".search-results-container").append(`
-      <div class="person-card">
+      <div class="person-card" data-id="${person.id}">
         <div class="card-info-group">
           <p class="card-data card-name">${person.firstName} ${person.lastName}</p>
           <p class="card-data card-email">${person.email}</p>
@@ -101,6 +112,27 @@ class Personnel {
           <p class="card-data card-location">${location.name}</p>
         </div>
       </div>`)
+    });
+
+    // Card Select Event listener
+    $(".person-card").on("click", e => {
+      const $card = $(e.currentTarget)
+      $card.addClass("selected-card");
+      $card.siblings().removeClass("selected-card");
+
+      const personId = $card.data("id").toString();
+
+      // TODO Add check here
+      const person = Personnel.getPersonById(personId);
+      // TODO Add active and non-active class to button
+      $("#save-changes").data("id", personId)
+
+      $("#edit-first-name").val(person.firstName);
+      $("#edit-last-name").val(person.lastName);
+      $("#edit-email").val(person.email);
+      $("#edit-job-title").val(person.jobTitle);
+      const personDepartment = Department.getDepartmentById(person.departmentID).name;
+      $("#edit-department").val(personDepartment);
     });
   }
 }
@@ -184,12 +216,19 @@ class Department {
     return department;
   }
 
-  static getHtmlOptions() {
-    let locationOptionsString = '<option class="department-option" data-department-id="all">All Departments</option>';
+  static getDepartmentByName(name) {
+    const department = Department.departments.find(dep => dep.name === name);
+    return department;
+  }
+
+  static getHtmlOptions(bool) {
+    let locationOptionsString = '';
+    if (bool) locationOptionsString += '<option class="department-option" data-department-id="all">All Departments</option>';
+
     Department.departments.forEach(dep => {
       locationOptionsString += `<option class="department-option" data-department-id="${dep.id}" value="${dep.name}">${dep.name}</option>`;
     });
-    console.log(locationOptionsString);
+
     return locationOptionsString;
   }
 
@@ -333,11 +372,13 @@ function filterResults() {
 }
 
 function populateLocationFilter() {
+  // TODO add bool to static method
   $("#location-filter").html(Location.getHtmlOptions());
 }
 
 function populateDepartmentFilter() {
-  $("#department-filter").html(Department.getHtmlOptions());
+  $("#department-filter").html(Department.getHtmlOptions(true));
+  $("#edit-department").html(Department.getHtmlOptions(false));
 }
 
 // Updates the counter in Seach Results title bar
@@ -386,17 +427,26 @@ $(".tab").on("click", e => {
 
 });
 
+// EDIT TAB Save Changes Button
+$("#save-changes").on("click", async e => {
+  const fName = $("#edit-first-name").val();
+  const lName = $("#edit-last-name").val();
+  const email = $("#edit-email").val();
+  const jobTitle = $("#edit-job-title").val();
 
-// Move this out of a timeout, it needs to apply to every newly created card
-// Card Select
-setTimeout(() => {
-  $(".person-card").on("click", e => {
-    $(e.currentTarget).addClass("selected-card");
-    $(e.currentTarget).siblings().removeClass("selected-card");
-  });
-}, 50);
+  const departmentname = ($("#edit-department").val());
+  const departmentId= Department.getDepartmentByName(departmentname).id;
 
+  const id = $("#save-changes").data("id");
+  console.log(id);
+  await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
 
+  // if success...
+  await Personnel.populateSearchResults();
+
+  // Reselect card
+  $(`[data-id="${id}"]`).addClass("selected-card");
+})
 
 
 // INIT SETUP //

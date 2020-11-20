@@ -19,7 +19,6 @@ html {
 }
 
 body {
-  
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -70,42 +69,92 @@ body {
   justify-content: flex-start;
   align-items: center;
 }
+    .filter-container {
+      width: 85%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding-top: 0.5rem;
+    }
+
+    .filter-container label {
+      font-size: 0.85rem;
+      padding-right: 1rem;
+      padding-bottom: 0.1rem;
+      border-bottom: 1px dotted black;
+    }
+
+    .filter-container select, .filter-container input {
+      height: 1.2rem;
+      width: 100%;
+    }
+
 
 .add-menu {
+  display: none;
   height: 8rem;
 }
 
 .edit-menu {
-  height: 8rem;
+  display: none;
+  height: 12rem;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
 }
+    .input-container {
+      width: 85%;
+      display: flex;
+      flex-direction: row;
+      
+      align-items: center;
+      padding-top: 0.5rem;
+    }
+
+    .input-container label {
+      flex-grow: 1;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+
+      padding-bottom: 0.1rem;
+      border-bottom: 1px dotted black;
+    }
+
+    .input-container select, .input-container input {
+      flex-grow: 6;
+      max-width: 60%;
+      height: 1.2rem;
+    }
+
+    .button {
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      display: flex;
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      width: 6rem;
+      height: 2rem;
+      border: 1px solid black;
+      margin-top: 0.8rem;
+      border-radius: 0.6rem;
+      background-color: var(--backing-grey);
+      color: snow;
+    }
+    .button:active {
+      /* background-color: var(--selected-orange); */
+      color: black;
+      border: 2px solid var(--selected-orange);
+    }
 
 .delete-menu {
+  display: none;
   height: 6rem;
 }
 
 .selected-menu {
   display: flex;
-}
-
-.filter-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding-top: 0.5rem;
-  /* padding-bottom: 0.2rem; */
-  width: 85%;
-}
-
-.filter-container label {
-  border-bottom: 1px dotted black;
-  font-size: 0.85rem;
-  padding-right: 1rem;
-  padding-bottom: 0.1rem;
-}
-
-.filter-container select, .filter-container input {
-  height: 1.2rem;
-  width: 100%;
 }
 
 .results-bar {
@@ -118,9 +167,6 @@ body {
 }
 
 .search-results-container {
-  /* For some reason changing this changes the height of all above elements?? */
-  /* I tried to remove it as it's not needed but I don't want to break the other styles... */
-  /* height: calc(100% - 12rem); */
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start; /* center */
