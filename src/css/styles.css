@@ -11,9 +11,6 @@ html {
   --selected-orange: rgb(255, 98, 0);
 }
 
-.b-left {
-  border-left: 1px solid black;
-}
 .b-right {
   border-right: 1px solid black;
 }
@@ -92,7 +89,7 @@ body {
   align-items: center;
 }
     .filter-container {
-      width: 85%;
+      width: 90%;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -110,26 +107,18 @@ body {
       height: 1.2rem;
       width: 100%;
     }
-    .reset-filter {
+
+    #reset-filter-btn {
       height: 1.5rem;
     }
 
 
-.add-menu {
+.edit-menu, .add-menu {
   display: none;
   height: 12rem;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-}
-
-.edit-menu {
-  display: none;
-  height: 12rem;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-
 }
     .input-container {
       width: 85%;
@@ -164,20 +153,20 @@ body {
   justify-content: center;
   text-align: center;
 }
+    .delete-message {
+      text-align: center;
+      width: 70%;
+    }
 
-.delete-message {
-  text-align: center;
-  width: 70%;
-}
+    .delete-button {
+      background-color: rgb(149, 16, 16);
+    }
 
-.delete-button {
-  background-color: rgb(149, 16, 16);
-}
-
-.delete-button:active {
-  border-color: black;
-  background-color: red;
-}
+    .delete-button:active {
+      border-color: black;
+      background-color: red;
+      color: white;
+    }
 
 .selected-menu {
   display: flex;

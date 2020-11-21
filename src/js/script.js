@@ -321,61 +321,74 @@ class Location {
 
 /* FUNCTIONS */
 /*~~~~~~~~~~~*/
+
+// Filters results, hiding results that do not match the filters.
+function filterResults() {
+  // setTimeout() is sadly required to prevent a bug with name search box.
+  // jQuery .each() breaks a bit when inside a timeout, so I couldn't use it here.
+  // IE, $(this) refers to the window object instead of the current jQuery object.
+  setTimeout(() => {
+    // Get filter values
+    const filterNameString = $("#name-filter").val().toLowerCase().trim();
+    const filterDepString = $("#department-filter").val();
+    const filterLocString = $("#location-filter").val();
+    // Loop over all results.
+    $(".person-card").each( (i, card) => {
+      // Get card values.
+      const cardDepartment = card.getElementsByClassName("card-department")[0].innerHTML;
+      const cardLocation = card.getElementsByClassName("card-location")[0].innerHTML;
+      const cardName = card.getElementsByClassName("card-name")[0].innerHTML;
+      // Test each value against the appropriate filter.
+      const depFilter = testDepartment(cardDepartment, filterDepString);
+      if (depFilter) { card.style.display = "none"; return; };
+      const locFilter = testLocation(cardLocation, filterLocString);
+      if (locFilter) { card.style.display = "none"; return; };
+      const nameFilter = testName(cardName, filterNameString);
+      if (nameFilter) { card.style.display = "none"; return; };
+      // If card does not get flagged by the filter, set display to flex.
+      card.style.display = "flex";
+    })
+    // Refresh counter after filtering,
+    updateShowingCounter();
+  }, 0)
+}
+
 // These three return true if card is to be filtered, aka hidden.
-function filterDepartment(cardDepartment, filterDepartmentString) {
+function testDepartment(cardDepartment, filterDepartmentString) {
   if (filterDepartmentString === "All Departments") return false;
   if (filterDepartmentString === cardDepartment) return false;
   return true;
 }
 
-function filterLocation(cardLocation, filterLocationString) {
+function testLocation(cardLocation, filterLocationString) {
   if (filterLocationString === "All Locations") return false;
   if (filterLocationString === cardLocation) return false;
   return true;
 }
 
-function filterName(cardName, filterNameString) {
+function testName(cardName, filterNameString) {
   if (cardName.toLowerCase().includes(filterNameString)) return false;
   return true;
 }
 
-// Filters results
-function filterResults() {
-  // Timeout is sadly required to prevent a bug with name search box.
-  setTimeout(() => {
-
-    const filterNameString = $("#name-filter").val().toLowerCase().trim();
-    const filterDepString = $("#department-filter").val();
-    const filterLocString = $("#location-filter").val();
-
-    $(".person-card").each( (i, card) => {
-      // jQuery .each() breaks a bit when inside a timeout, so I couldn't use it here.
-      // IE, $(this) refers to the window object instead of the current jQuery object.
-      const cardDepartment = card.getElementsByClassName("card-department")[0].innerHTML;
-      const cardLocation = card.getElementsByClassName("card-location")[0].innerHTML;
-      const cardName = card.getElementsByClassName("card-name")[0].innerHTML;
-
-      const depFilter = filterDepartment(cardDepartment, filterDepString);
-      if (depFilter) { card.style.display = "none"; return; };
-  
-      const locFilter = filterLocation(cardLocation, filterLocString);
-      if (locFilter) { card.style.display = "none"; return; };
-
-      const nameFilter = filterName(cardName, filterNameString);
-      if (nameFilter) { card.style.display = "none"; return; };
-      // If card does not get flagged by the filter, set display to flex.
-      card.style.display = "flex";
-    })
-
-    updateShowingCounter();
-  }, 0)
+// Updates the counter in Seach Results title bar
+function updateShowingCounter() {
+  let total = 0, totalVisible = 0;
+  $(".person-card").each( (i, obj) => {
+    // On load, obj.style.display is "" for some reason. The || is used for this reason.
+    if (obj.style.display === "flex" || obj.style.display === "") totalVisible++;
+    total++;
+  });
+  $(".showing-count").html(totalVisible);
+  $(".total-count").html(total);
 }
 
+// Refreshes location select elements.
 function populateLocationSelects() {
-  // TODO add bool to static method
   $("#location-filter").html(Location.getHtmlOptions());
 }
 
+// Refreshes department select elements.
 function populateDepartmentSelects() {
   $("#department-filter").html(Department.getHtmlOptions(true));
   const optionsWithoutAllDepartments = Department.getHtmlOptions(false);
@@ -383,27 +396,46 @@ function populateDepartmentSelects() {
   $("#edit-department").html(optionsWithoutAllDepartments);
 }
 
-
-
-// Updates the counter in Seach Results title bar
-function updateShowingCounter() {
-  let total = 0;
-  let totalVisible = 0;
-  $(".person-card").each( (i, obj) => {
-    // On load, obj.style.display is "" for some reason. The || is used for this reason.
-    if (obj.style.display === "flex" || obj.style.display === "") {
-      totalVisible++;
-    }
-    total++;
-  });
-  $(".showing-count").html(totalVisible);
-  $(".total-count").html(total);
+// Switches between "main" tabs at top of app.
+function changeMainTab(e) {
+  const $tab = $(e.currentTarget);
+  const $tabMenu = $(`.${$tab.html()}-menu`);
+  $tab.addClass("selected-tab");
+  $tabMenu.addClass("selected-menu");
+  $tab.siblings().removeClass("selected-tab");
+  $tabMenu.siblings().removeClass("selected-menu");
 }
+
+// Switches between bottom tabs.
+function changeBottomTab(e) {
+  const $tab = $(e.currentTarget);
+  const $bottomMenu = $(`.${$tab.html().replace(" ", "-")}-menu`);
+  if ($tab.hasClass("selected-bottom-tab")) {
+    $tab.removeClass("selected-bottom-tab");
+    $bottomMenu.removeClass("selected-bottom-menu");
+  } else {
+    $tab.addClass("selected-bottom-tab");
+    $tab.siblings().removeClass("selected-bottom-tab");
+    // If the two lines below swap places the EDIT LOCATIONS tab doesn't work properly.
+    $bottomMenu.siblings().removeClass("selected-bottom-menu");
+    $bottomMenu.addClass("selected-bottom-menu");
+  }
+}
+
+// Resets filter and refreshes results.
+function resetFilter() {
+  $("#name-filter").val("");
+  $("#department-filter").val("All Departments");
+  $("#location-filter").val("All Locations");
+  filterResults();
+}
+
 
 
 /* EVENT LISTENERS */
 /*~~~~~~~~~~~~~~~~*/
 
+// Filter listneners
 $("#name-filter").on("keydown", e => {
   filterResults();
 });
@@ -418,41 +450,16 @@ $("#department-filter").on("change", e => {
 
 // Tab Change listener
 $(".tab").on("click", e => {
-
-  const $tab = $(e.currentTarget);
-  $tab.addClass("selected-tab");
-  $tab.siblings().removeClass("selected-tab");
-
-  const $tabMenu = $(`.${$tab.html()}-menu`);
-  $tabMenu.addClass("selected-menu");
-  $tabMenu.siblings().removeClass("selected-menu");
-
+  changeMainTab(e);
 });
 
 // Bottom Tab change listener
 $(".bottom-tab").on("click", e => {
-
-  const $tab = $(e.currentTarget);
-  
-  const bottomMenuString = `${$tab.html().replace(" ", "-")}-menu`;
-  console.log(bottomMenuString);
-  const $bottomMenu = $(`.${bottomMenuString}`);
-
-  if ($tab.hasClass("selected-bottom-tab")) {
-    $tab.removeClass("selected-bottom-tab");
-    $bottomMenu.removeClass("selected-bottom-menu");
-  }
-  else {
-    $tab.addClass("selected-bottom-tab");
-    $tab.siblings().removeClass("selected-bottom-tab");
-    $bottomMenu.siblings().removeClass("selected-bottom-menu");
-    $bottomMenu.addClass("selected-bottom-menu");
-    
-  }
+  changeBottomTab(e);
 });
 
 // EDIT TAB Save Changes Button
-$("#save-changes").on("click", async e => {
+$("#save-changes").on("click", async () => {
   const fName = $("#edit-first-name").val();
   const lName = $("#edit-last-name").val();
   const email = $("#edit-email").val();
@@ -472,7 +479,7 @@ $("#save-changes").on("click", async e => {
 })
 
 // ADD TAB Add Entry Button
-$("#add-entry").on("click", async e => {
+$("#add-entry").on("click", async () => {
   const fName = $("#add-first-name").val();
   const lName = $("#add-last-name").val();
   const email = $("#add-email").val();
@@ -501,11 +508,8 @@ $("#delete-entry").on("click", async e => {
 });
 
 // Reset Filter options
-$("#reset-filter").on("click", e => {
-  $("#name-filter").val("");
-  $("#department-filter").val("All Departments");
-  $("#location-filter").val("All Locations");
-  filterResults();
+$("#reset-filter-btn").on("click", () => {
+  resetFilter();
 });
 
 // INIT SETUP //
