@@ -371,7 +371,7 @@ function filterResults() {
   }, 0)
 }
 
-function populateLocationFilter() {
+function populateLocationSelects() {
   // TODO add bool to static method
   $("#location-filter").html(Location.getHtmlOptions());
 }
@@ -423,11 +423,32 @@ $(".tab").on("click", e => {
   $tab.addClass("selected-tab");
   $tab.siblings().removeClass("selected-tab");
 
-  console.log(`.${$tab.html()}-menu`);
   const $tabMenu = $(`.${$tab.html()}-menu`);
   $tabMenu.addClass("selected-menu");
   $tabMenu.siblings().removeClass("selected-menu");
 
+});
+
+// Bottom Tab change listener
+$(".bottom-tab").on("click", e => {
+
+  const $tab = $(e.currentTarget);
+  
+  const bottomMenuString = `${$tab.html().replace(" ", "-")}-menu`;
+  console.log(bottomMenuString);
+  const $bottomMenu = $(`.${bottomMenuString}`);
+
+  if ($tab.hasClass("selected-bottom-tab")) {
+    $tab.removeClass("selected-bottom-tab");
+    $bottomMenu.removeClass("selected-bottom-menu");
+  }
+  else {
+    $tab.addClass("selected-bottom-tab");
+    $tab.siblings().removeClass("selected-bottom-tab");
+    $bottomMenu.siblings().removeClass("selected-bottom-menu");
+    $bottomMenu.addClass("selected-bottom-menu");
+    
+  }
 });
 
 // EDIT TAB Save Changes Button
@@ -467,7 +488,6 @@ $("#add-entry").on("click", async e => {
 
   // Reselects card
   const id = $("#save-changes").data("id");
-  // TODO fix bug which add class incorrectly to create entry button / add button
   $(`.person-card[data-id="${id}"]`).addClass("selected-card");
 })
 
@@ -482,7 +502,6 @@ $("#delete-entry").on("click", async e => {
 
 // Reset Filter options
 $("#reset-filter").on("click", e => {
-  console.log("HELLO");
   $("#name-filter").val("");
   $("#department-filter").val("All Departments");
   $("#location-filter").val("All Locations");
@@ -490,12 +509,12 @@ $("#reset-filter").on("click", e => {
 });
 
 // INIT SETUP //
-async function initSetup() {
+async function initSetup() { 
   await Department.getAllDepartments();
   await Location.getAllLocations();
   await Personnel.getAllPersonnel();
   Personnel.populateSearchResults(false);
-  populateLocationFilter();
+  populateLocationSelects();
   populateDepartmentSelects();
   updateShowingCounter();
 }

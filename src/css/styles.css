@@ -34,6 +34,7 @@ body {
   padding: 0 0.3rem;
   font-size: 0.8rem;
   border-bottom: 1px solid black;
+  width: 100%;
 }
 
 .tab-container {
@@ -246,22 +247,72 @@ body {
   font-style: italic;
 }
 
-/* .card-department::after {
-  content: ",";
-  display: inline;
-} */
-
 .card-location {
   font-weight: bold;
   text-transform: uppercase;
 }
 
-.edit-tabs {
+/* BOTTOM TABS AND MENUS */
+.bottom-tab-container {
+  z-index: 2;
+  display: flex;
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 2rem;
-  background-color: var(--selected-grey);
+  background-color: var(--navbar-grey);
+}
+
+.bottom-tab {
+  text-transform: uppercase;
+  z-index: 2;
+  font-size: 0.8rem;
+  color: snow;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  border-top: 2px solid black;
+}
+    .selected-bottom-tab {
+      border-top-color: var(--selected-grey);
+      background-color: var(--selected-grey);
+      color: black;
+      font-weight: bold;
+    }
+
+
+.bottom-menu {
+  display: none;
+  z-index: 1;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
   border-top: 1px solid black;
+  /* border-top: 2px solid black; */
+  background-color: var(--selected-grey);
+}
+    .selected-bottom-menu {
+      display: flex;
+    }
+
+.edit-departments-menu {
+  height: 12rem;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.edit-locations-menu {
+  height: 10.3rem;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.button-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
 }
