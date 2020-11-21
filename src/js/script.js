@@ -10,10 +10,9 @@ class Personnel {
     const res = await fetch("php/getAllPersonnel.php");
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully retrieved personnel!");
-      //console.log(resJson.data);
       Personnel.personnel = resJson.data;
-      return resJson.data;
+      console.log("Successfully retrieved personnel!");
+      return true;
     } else {
       console.log("Failed to retrieve personnel!");
       return false;
@@ -125,8 +124,7 @@ class Personnel {
       // TODO Add check here
       const person = Personnel.getPersonById(Personnel.currentlySelectedId);
       // TODO Add active and non-active class to button
-      $("#save-changes").data("id", Personnel.currentlySelectedId)
-
+    
       $("#edit-first-name").val(person.firstName);
       $("#edit-last-name").val(person.lastName);
       $("#edit-email").val(person.email);
@@ -152,8 +150,9 @@ class Department {
     const res = await fetch("php/getAllDepartments.php");
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully retrieved departments!");
       Department.departments = resJson.data;
+      console.log("Successfully retrieved departments!");
+      return true;
     } else {
       console.log("Failed to retrieve departments!");
       return false;
@@ -172,8 +171,10 @@ class Department {
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
       console.log("Successfully added department!");
+      return true;
     } else {
       console.log("Failed to add department!");
+      return false;
     }
   }
 
@@ -222,12 +223,10 @@ class Department {
     return department;
   }
 
-  static getHtmlOptions(bool) {
+  static getHtmlOptions() {
     let locationOptionsString = '';
-    if (bool) locationOptionsString += '<option class="department-option" data-department-id="all">All Departments</option>';
-
     Department.departments.forEach(dep => {
-      locationOptionsString += `<option class="department-option" data-department-id="${dep.id}" value="${dep.name}">${dep.name}</option>`;
+      locationOptionsString += `<option data-department-id="${dep.id}" value="${dep.name}">${dep.name}</option>`;
     });
 
     return locationOptionsString;
@@ -247,10 +246,12 @@ class Location {
     const res = await fetch("php/getAllLocations.php");
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully got locations!");
       Location.locations = resJson.data;
+      console.log("Successfully got locations!");
+      return true;
     } else {
-      console.log("Failed!");
+      console.log("Get all Locations failed!");
+      return false;
     }
   }
 
@@ -307,9 +308,13 @@ class Location {
     return location;
   }
 
+  static getLocationByName(name) {
+    const location = Location.locations.find(loc => loc.name === name);
+    return location;
+  }
+
   static getHtmlOptions() {
-    let locationOptionsString =
-    '<option class="location-option" data-location-id="all">All Locations</option>';
+    let locationOptionsString = "";
     Location.locations.forEach(loc => {
       locationOptionsString += `<option class="location-option" data-location-id="${loc.id}" value="${loc.name}">${loc.name}</option>`;
     });
@@ -371,7 +376,7 @@ function testName(cardName, filterNameString) {
   return true;
 }
 
-// Updates the counter in Seach Results title bar
+// Updates the counter in Seach Results title bar.
 function updateShowingCounter() {
   let total = 0, totalVisible = 0;
   $(".person-card").each( (i, obj) => {
@@ -385,15 +390,23 @@ function updateShowingCounter() {
 
 // Refreshes location select elements.
 function populateLocationSelects() {
-  $("#location-filter").html(Location.getHtmlOptions());
+  const standardLocOptions = Location.getHtmlOptions();
+  const allLocsOption = '<option class="location-option" data-location-id="all">All Locations</option>';
+  const newLocOption = '<option>NEW LOCATION</option>';
+  $("#location-filter").html(allLocsOption + standardLocOptions);
+  $("#location-change").html(standardLocOptions);
+  $("#location-select").html(newLocOption + standardLocOptions)
 }
 
 // Refreshes department select elements.
 function populateDepartmentSelects() {
-  $("#department-filter").html(Department.getHtmlOptions(true));
-  const optionsWithoutAllDepartments = Department.getHtmlOptions(false);
-  $("#add-department").html(optionsWithoutAllDepartments);
-  $("#edit-department").html(optionsWithoutAllDepartments);
+  const standardDepOptions = Department.getHtmlOptions();
+  const allDepsOption = '<option data-department-id="all">All Departments</option>';
+  const newDepOption = '<option>NEW DEPARTMENT</option>';
+  $("#department-filter").html(allDepsOption + standardDepOptions);
+  $("#add-department").html(standardDepOptions);
+  $("#edit-department").html(standardDepOptions);
+  $("#department-select").html(newDepOption + standardDepOptions);
 }
 
 // Switches between "main" tabs at top of app.
@@ -416,9 +429,8 @@ function changeBottomTab(e) {
   } else {
     $tab.addClass("selected-bottom-tab");
     $tab.siblings().removeClass("selected-bottom-tab");
-    // If the two lines below swap places the EDIT LOCATIONS tab doesn't work properly.
-    $bottomMenu.siblings().removeClass("selected-bottom-menu");
     $bottomMenu.addClass("selected-bottom-menu");
+    $bottomMenu.siblings().removeClass("selected-bottom-menu");
   }
 }
 
@@ -464,14 +476,12 @@ $("#save-changes").on("click", async () => {
   const lName = $("#edit-last-name").val();
   const email = $("#edit-email").val();
   const jobTitle = $("#edit-job-title").val();
-
   const departmentname = ($("#edit-department").val());
-  const departmentId= Department.getDepartmentByName(departmentname).id;
-
-  const id = $("#save-changes").data("id");
+  const departmentId = Department.getDepartmentByName(departmentname).id;
+  const id = Personnel.currentlySelectedId;
 
   await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
-  // if success...
+  // if success check here...
   await Personnel.populateSearchResults();
 
   // Reselect card
@@ -486,7 +496,7 @@ $("#add-entry").on("click", async () => {
   const jobTitle = $("#add-job-title").val();
 
   const departmentname = ($("#add-department").val());
-  const departmentId= Department.getDepartmentByName(departmentname).id;
+  const departmentId = Department.getDepartmentByName(departmentname).id;
 
   await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
 
@@ -494,7 +504,7 @@ $("#add-entry").on("click", async () => {
   await Personnel.populateSearchResults();
 
   // Reselects card
-  const id = $("#save-changes").data("id");
+  const id = Personnel.currentlySelectedId;
   $(`.person-card[data-id="${id}"]`).addClass("selected-card");
 })
 
@@ -502,7 +512,7 @@ $("#add-entry").on("click", async () => {
 // DELETE TAB Delete Button
 $("#delete-entry").on("click", async e => {
   // TODO write a function to select currently selcted person id
-  const id = $("#save-changes").data("id");
+  const id = Personnel.currentlySelectedId;
   await Personnel.deletePersonnel(id);
   await Personnel.populateSearchResults();
 });
@@ -511,6 +521,97 @@ $("#delete-entry").on("click", async e => {
 $("#reset-filter-btn").on("click", () => {
   resetFilter();
 });
+
+// Department Edit Menu
+$("#department-select").on("change", e => {
+  const departmentName = $(e.currentTarget).val();
+  if (departmentName !== "NEW DEPARTMENT") {
+    const locationId = Department.getDepartmentByName($(e.currentTarget).val()).locationID;
+    const locationName = Location.getLocationById(locationId).name;
+    $("#location-change").val(locationName);
+    $("#department-name").val(departmentName);
+  } else {
+    console.log("heppy");
+    $("#department-name").val("");
+  }
+});
+
+// Save / Add new department
+$("#save-department").on("click", async () => {
+
+  const selectedDepartment = $("#department-select").val();
+  const newDepartmentName = $("#department-name").val();
+  const locationName = $("#location-change").val();
+  const locationId = Location.getLocationByName(locationName).id;
+
+  if (selectedDepartment === "NEW DEPARTMENT") {
+    const success = await Department.addDepartment(newDepartmentName, locationId);
+    if (success) {
+      console.log("Successfully added new Department!");
+    } else {
+      console.log("Failed to add new Department!");
+    }
+    await Department.getAllDepartments();
+    populateDepartmentSelects();
+    
+  } else {
+    const departmentId = Department.getDepartmentByName(selectedDepartment).id;
+    const success = await Department.updateDepartment(newDepartmentName, locationId, departmentId);
+    if (success) {
+      console.log("Saved department!");
+    } else {
+      console.log("Failed to save department!");
+    }
+    await Department.getAllDepartments();
+    populateDepartmentSelects();
+    await Personnel.populateSearchResults();
+  }
+});
+
+// TODO Add reselectCard function.
+// TODO make sure a new department with name of ADD DEPARTMENT can't be added.
+// TODO don't use arrow functions when using $(this).
+// TODO add function -> Reset Edit Department tab.
+
+// Delete department
+$("#delete-department").on("click", async () => {
+  const selectedDepartment = $("#department-select").val();
+  if (selectedDepartment !== "NEW DEPARTMENT") {
+    const departmentId = Department.getDepartmentByName(selectedDepartment).id;
+    const inUseCount = checkIfDepartmentInUse(departmentId);
+    if (inUseCount <= 0) { 
+      const success = await Department.deleteDepartment(departmentId);
+      if (success) {
+        console.log("Successfully deleted department!");
+        await Department.getAllDepartments();
+        populateDepartmentSelects();
+      } else {
+        console.log("Failed to delete department!");
+      }
+    } else {
+      console.log(`Cannot delete department as ${inUseCount} personnel are in this department!`);
+    }
+  }
+});
+
+// Returns count of Personnal in given department.
+// TODO change to look at Personnel class?
+function checkIfDepartmentInUse(departmentId) {
+  let counter = 0;
+  Personnel.personnel.forEach(person => {
+    if (person.departmentID === departmentId) counter++;
+  });
+  return counter;
+}
+
+// Returns count of Personnal in given department.
+function checkIfLocationInUse(locationId) {
+  let counter = 0;
+  Department.departments.forEach(dep => {
+    if (dep.locationID === locationId) counter++;
+  });
+  return counter;
+}
 
 // INIT SETUP //
 async function initSetup() { 
