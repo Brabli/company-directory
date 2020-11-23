@@ -116,21 +116,8 @@ class Personnel {
 
     // Card Select Event listener
     $(".person-card").on("click", e => {
-      const $card = $(e.currentTarget)
-      $card.addClass("selected-card");
-      $card.siblings().removeClass("selected-card");
-
-      Personnel.currentlySelectedId = $card.data("id").toString();
-      // TODO Add check here
-      const person = Personnel.getPersonById(Personnel.currentlySelectedId);
-      // TODO Add active and non-active class to button
-    
-      $("#edit-first-name").val(person.firstName);
-      $("#edit-last-name").val(person.lastName);
-      $("#edit-email").val(person.email);
-      $("#edit-job-title").val(person.jobTitle);
-      const personDepartment = Department.getDepartmentById(person.departmentID).name;
-      $("#edit-department").val(personDepartment);
+      Personnel.currentlySelectedId = $(e.currentTarget).data("id").toString();
+      selectCard(Personnel.currentlySelectedId);
     });
 
     filterResults();
@@ -329,6 +316,7 @@ class Location {
 
 // Filters results, hiding results that do not match the filters.
 function filterResults() {
+  // TODO Change to a REGULAR FUNCTION NOT AN ARROW FUNCTION!!!
   // setTimeout() is sadly required to prevent a bug with name search box.
   // jQuery .each() breaks a bit when inside a timeout, so I couldn't use it here.
   // IE, $(this) refers to the window object instead of the current jQuery object.
@@ -352,7 +340,7 @@ function filterResults() {
       if (nameFilter) { card.style.display = "none"; return; };
       // If card does not get flagged by the filter, set display to flex.
       card.style.display = "flex";
-    })
+    });
     // Refresh counter after filtering,
     updateShowingCounter();
   }, 0)
@@ -399,6 +387,7 @@ function populateLocationSelects() {
 }
 
 // Refreshes department select elements.
+// TODO Refresh beforehand?
 function populateDepartmentSelects() {
   const standardDepOptions = Department.getHtmlOptions();
   const allDepsOption = '<option data-department-id="all">All Departments</option>';
@@ -434,6 +423,24 @@ function changeBottomTab(e) {
   }
 }
 
+// Returns count of personnal in given department.
+function checkIfDepartmentInUse(departmentId) {
+  let counter = 0;
+  Personnel.personnel.forEach(person => {
+    if (person.departmentID === departmentId) counter++;
+  });
+  return counter;
+}
+
+// Returns count of departments in given location.
+function checkIfLocationInUse(locationId) {
+  let counter = 0;
+  Department.departments.forEach(dep => {
+    if (dep.locationID === locationId) counter++;
+  });
+  return counter;
+}
+
 // Resets filter and refreshes results.
 function resetFilter() {
   $("#name-filter").val("");
@@ -442,108 +449,95 @@ function resetFilter() {
   filterResults();
 }
 
+// Reselects the previously selected card
+function reselectCard() {
+  selectCard(Personnel.currentlySelectedId);
+}
 
+// Returns card by personnel id.
+function getCardById(personnelId) {
+  return $(`.person-card[data-id="${personnelId}"`);
+}
 
-/* EVENT LISTENERS */
-/*~~~~~~~~~~~~~~~~*/
+// Selects card
+function selectCard(personnelId) {
+  const $card = getCardById(personnelId);
+  const person = Personnel.getPersonById(Personnel.currentlySelectedId);
+  const personDepartment = Department.getDepartmentById(person.departmentID).name;
 
-// Filter listneners
-$("#name-filter").on("keydown", e => {
-  filterResults();
-});
+  $card.addClass("selected-card");
+  $card.siblings().removeClass("selected-card");
 
-$("#location-filter").on("change", e => {
-  filterResults();
-})
+  $("#edit-first-name").val(person.firstName);
+  $("#edit-last-name").val(person.lastName);
+  $("#edit-email").val(person.email);
+  $("#edit-job-title").val(person.jobTitle);
+  $("#edit-department").val(personDepartment);
+}
 
-$("#department-filter").on("change", e => {
-  filterResults();
-})
-
-// Tab Change listener
-$(".tab").on("click", e => {
-  changeMainTab(e);
-});
-
-// Bottom Tab change listener
-$(".bottom-tab").on("click", e => {
-  changeBottomTab(e);
-});
-
-// EDIT TAB Save Changes Button
-$("#save-changes").on("click", async () => {
+// EDIT TAB - Save Changes
+// TODO Add check so only if a field is edited does the button become active.
+async function saveEditChanges() {
+  const id = Personnel.currentlySelectedId;
   const fName = $("#edit-first-name").val();
   const lName = $("#edit-last-name").val();
   const email = $("#edit-email").val();
   const jobTitle = $("#edit-job-title").val();
-  const departmentname = ($("#edit-department").val());
-  const departmentId = Department.getDepartmentByName(departmentname).id;
-  const id = Personnel.currentlySelectedId;
-
+  const departmentName = ($("#edit-department").val());
+  const departmentId = Department.getDepartmentByName(departmentName).id;
+  // TODO Add checks here!
   await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
-  // if success check here...
   await Personnel.populateSearchResults();
 
-  // Reselect card
-  $(`.person-card[data-id="${id}"]`).addClass("selected-card");
-})
+  reselectCard();
+}
 
-// ADD TAB Add Entry Button
-$("#add-entry").on("click", async () => {
+// ADD TAB - Add new personnel
+async function addPersonnel() {
   const fName = $("#add-first-name").val();
   const lName = $("#add-last-name").val();
   const email = $("#add-email").val();
   const jobTitle = $("#add-job-title").val();
-
   const departmentname = ($("#add-department").val());
   const departmentId = Department.getDepartmentByName(departmentname).id;
-
+  // TODO Add checks here!
   await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
-
-  // if success..
   await Personnel.populateSearchResults();
 
-  // Reselects card
-  const id = Personnel.currentlySelectedId;
-  $(`.person-card[data-id="${id}"]`).addClass("selected-card");
-})
+  reselectCard();
+}
 
+// DELETE TAB - Delete selected personnel
 // TODO Check to see if something is even selected before activating button
-// DELETE TAB Delete Button
-$("#delete-entry").on("click", async e => {
-  // TODO write a function to select currently selcted person id
-  const id = Personnel.currentlySelectedId;
-  await Personnel.deletePersonnel(id);
+async function deletePersonnel() {
+  await Personnel.deletePersonnel(Personnel.currentlySelectedId);
+  // TODO Have a better way of doing this
   await Personnel.populateSearchResults();
-});
+}
 
-// Reset Filter options
-$("#reset-filter-btn").on("click", () => {
-  resetFilter();
-});
-
-// Department Edit Menu
-$("#department-select").on("change", e => {
-  const departmentName = $(e.currentTarget).val();
-  if (departmentName !== "NEW DEPARTMENT") {
-    const locationId = Department.getDepartmentByName($(e.currentTarget).val()).locationID;
+// EDIT DEPARTMENTS - Department Select Update
+function updateEditDepartmentFields() {
+  const departmentName = $("#department-select").val();
+  if (departmentName === "NEW DEPARTMENT") {
+    // TODO deactivate button until both values are not blank.
+    $("#department-name").val("");
+    $("#location-change").val("");
+  } else {
+    const locationId = Department.getDepartmentByName(departmentName).locationID;
     const locationName = Location.getLocationById(locationId).name;
     $("#location-change").val(locationName);
     $("#department-name").val(departmentName);
-  } else {
-    console.log("heppy");
-    $("#department-name").val("");
   }
-});
+}
 
-// Save / Add new department
-$("#save-department").on("click", async () => {
-
+// EDIT DEPARTMENTS - Save Department
+async function saveDepartment() {
   const selectedDepartment = $("#department-select").val();
   const newDepartmentName = $("#department-name").val();
   const locationName = $("#location-change").val();
   const locationId = Location.getLocationByName(locationName).id;
 
+  // Add new department
   if (selectedDepartment === "NEW DEPARTMENT") {
     const success = await Department.addDepartment(newDepartmentName, locationId);
     if (success) {
@@ -553,7 +547,7 @@ $("#save-department").on("click", async () => {
     }
     await Department.getAllDepartments();
     populateDepartmentSelects();
-    
+  // Save changes to current department
   } else {
     const departmentId = Department.getDepartmentByName(selectedDepartment).id;
     const success = await Department.updateDepartment(newDepartmentName, locationId, departmentId);
@@ -566,15 +560,10 @@ $("#save-department").on("click", async () => {
     populateDepartmentSelects();
     await Personnel.populateSearchResults();
   }
-});
+}
 
-// TODO Add reselectCard function.
-// TODO make sure a new department with name of ADD DEPARTMENT can't be added.
-// TODO don't use arrow functions when using $(this).
-// TODO add function -> Reset Edit Department tab.
-
-// Delete department
-$("#delete-department").on("click", async () => {
+// EDIT DEPARTMENTS - Delete existing department
+async function deleteDepartment() {
   const selectedDepartment = $("#department-select").val();
   if (selectedDepartment !== "NEW DEPARTMENT") {
     const departmentId = Department.getDepartmentByName(selectedDepartment).id;
@@ -592,26 +581,73 @@ $("#delete-department").on("click", async () => {
       console.log(`Cannot delete department as ${inUseCount} personnel are in this department!`);
     }
   }
+}
+
+// TODO make sure a new department with name that's the same as an existing department can't be created
+// TODO don't use arrow functions when using $(this).
+// TODO add function -> Reset Edit Department tab.
+
+/* EVENT LISTENERS */
+/*~~~~~~~~~~~~~~~~*/
+
+// Main Tab Change listener
+$(".tab").on("click", e => {
+  changeMainTab(e);
 });
 
-// Returns count of Personnal in given department.
-// TODO change to look at Personnel class?
-function checkIfDepartmentInUse(departmentId) {
-  let counter = 0;
-  Personnel.personnel.forEach(person => {
-    if (person.departmentID === departmentId) counter++;
-  });
-  return counter;
-}
+// SEARCH TAB - Filter listneners
+$("#name-filter").on("keydown", () => {
+  filterResults();
+});
 
-// Returns count of Personnal in given department.
-function checkIfLocationInUse(locationId) {
-  let counter = 0;
-  Department.departments.forEach(dep => {
-    if (dep.locationID === locationId) counter++;
-  });
-  return counter;
-}
+$("#department-filter").on("change", () => {
+  filterResults();
+});
+
+$("#location-filter").on("change", () => {
+  filterResults();
+});
+
+// SEARCH TAB -  Reset Filter options
+$("#reset-filter-btn").on("click", () => {
+  resetFilter();
+});
+
+// EDIT TAB - Save Changes Button
+$("#save-changes").on("click", () => {
+  saveEditChanges();
+})
+
+// ADD TAB - Add Entry Button
+$("#add-entry").on("click", () => {
+  addPersonnel();
+})
+
+// DELETE TAB - Delete Button
+$("#delete-entry").on("click", () => {
+  deletePersonnel();
+});
+
+// Bottom Tab change listener
+$(".bottom-tab").on("click", e => {
+  changeBottomTab(e);
+});
+
+// EDIT DEPARTMENTS - Department Select
+$("#department-select").on("change", () => {
+  updateEditDepartmentFields();
+});
+
+// Save / Add new department
+$("#save-department").on("click", () => {
+  saveDepartment();
+});
+
+// Delete department
+$("#delete-department").on("click", () => {
+  deleteDepartment();
+});
+
 
 // INIT SETUP //
 async function initSetup() { 
