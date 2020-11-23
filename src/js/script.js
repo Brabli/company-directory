@@ -81,15 +81,11 @@ class Personnel {
       return false;
     }
   }
-  // TODO refactor this
+
   static getPersonById(id) {
-    const person = Personnel.personnel.find(person => {
-      return person.id === id;
-    });
-    return person;
+    return Personnel.personnel.find(person => person.id === id);
   }
 
-  // TODO move event listener card click here
   static async populateSearchResults(refresh = true) {
     if (refresh) await Personnel.getAllPersonnel();
 
@@ -131,8 +127,9 @@ class Personnel {
 class Department {
 
   static departments = [];
+  static currentlySelectedDepId;
+  static currentltSelectedDepName;
 
-  // Update Department.department array
   static async getAllDepartments() {
     const res = await fetch("php/getAllDepartments.php");
     const resJson = await res.json();
@@ -146,7 +143,6 @@ class Department {
     }
   }
 
-  // Add department row to database
   static async addDepartment(name, locationId) {
     const res = await fetch("php/addDepartment.php", {
       method: "POST",
@@ -165,7 +161,6 @@ class Department {
     }
   }
 
-  // Update existing department row by ID
   static async updateDepartment(name, locationId, id) {
     const res = await fetch("php/updateDepartment.php", {
       method: "POST",
@@ -183,7 +178,6 @@ class Department {
     }
   }
 
-  // Update existing department row by ID
   static async deleteDepartment(id) {
     const res = await fetch("php/deleteDepartment.php", {
       method: "POST",
@@ -200,25 +194,23 @@ class Department {
       return false;
     }
   }
+
   static getDepartmentById(id) {
-    const department = Department.departments.find(dep => dep.id === id);
-    return department;
+    return Department.departments.find(dep => dep.id === id);
   }
 
   static getDepartmentByName(name) {
-    const department = Department.departments.find(dep => dep.name === name);
-    return department;
+    return Department.departments.find(dep => dep.name === name);
   }
 
   static getHtmlOptions() {
     let locationOptionsString = '';
     Department.departments.forEach(dep => {
-      locationOptionsString += `<option data-department-id="${dep.id}" value="${dep.name}">${dep.name}</option>`;
+      locationOptionsString += 
+      `<option data-department-id="${dep.id}" value="${dep.name}">${dep.name}</option>`;
     });
-
     return locationOptionsString;
   }
-
 }
 
 
@@ -228,6 +220,8 @@ class Department {
 class Location {
 
   static locations = [];
+  static currentlySelectedLocId;
+  static currentltSelectedLocName;
 
   static async getAllLocations() {
     const res = await fetch("php/getAllLocations.php");
@@ -291,13 +285,11 @@ class Location {
   }
   
   static getLocationById(id) {
-    const location = Location.locations.find(loc => loc.id === id);
-    return location;
+    return Location.locations.find(loc => loc.id === id)
   }
 
   static getLocationByName(name) {
-    const location = Location.locations.find(loc => loc.name === name);
-    return location;
+    return Location.locations.find(loc => loc.name === name);
   }
 
   static getHtmlOptions() {
@@ -377,6 +369,7 @@ function updateShowingCounter() {
 }
 
 // Refreshes location select elements.
+// TODO Refresh beforehand?
 function populateLocationSelects() {
   const standardLocOptions = Location.getHtmlOptions();
   const allLocsOption = '<option class="location-option" data-location-id="all">All Locations</option>';
@@ -487,7 +480,7 @@ async function saveEditChanges() {
   const departmentId = Department.getDepartmentByName(departmentName).id;
   // TODO Add checks here!
   await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
-  await Personnel.populateSearchResults();
+  await Personnel.populateSearchResults(true);
 
   reselectCard();
 }
@@ -502,7 +495,7 @@ async function addPersonnel() {
   const departmentId = Department.getDepartmentByName(departmentname).id;
   // TODO Add checks here!
   await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
-  await Personnel.populateSearchResults();
+  await Personnel.populateSearchResults(true);
 
   reselectCard();
 }
@@ -530,13 +523,12 @@ function updateEditDepartmentFields() {
   }
 }
 
-// EDIT DEPARTMENTS - Save Department
+// EDIT DEPARTMENTS - Save or Add Department
 async function saveDepartment() {
   const selectedDepartment = $("#department-select").val();
   const newDepartmentName = $("#department-name").val();
   const locationName = $("#location-change").val();
   const locationId = Location.getLocationByName(locationName).id;
-
   // Add new department
   if (selectedDepartment === "NEW DEPARTMENT") {
     const success = await Department.addDepartment(newDepartmentName, locationId);
@@ -572,6 +564,7 @@ async function deleteDepartment() {
       const success = await Department.deleteDepartment(departmentId);
       if (success) {
         console.log("Successfully deleted department!");
+        // TODO if success don't update server just remove from dep array
         await Department.getAllDepartments();
         populateDepartmentSelects();
       } else {
@@ -580,6 +573,70 @@ async function deleteDepartment() {
     } else {
       console.log(`Cannot delete department as ${inUseCount} personnel are in this department!`);
     }
+  }
+}
+
+// EDIT LOCATIONS - Location Select Update
+function updateEditLocationFields() {
+  const locationName = $("#location-select").val();
+  if (locationName === "NEW LOCATION") {
+    $("#location-name").val("");
+  } else {
+    $("#location-name").val(locationName);
+  }
+}
+
+// TODO do his for departments also
+function checkLocationNames(newLocationName) {
+  return Location.locations.find(loc => loc.name.toLowerCase() === newLocationName.toLowerCase());
+}
+
+// EDIT LOCATIONS - Save or Add Location
+async function saveLocation() {
+  const locationNameSelect = $("#location-select").val();
+  const newLocationName =  $("#location-name").val();
+
+  if (checkLocationNames(newLocationName)) {
+    console.log("A location with that name already exists!");
+    return;
+  }
+
+  if (locationNameSelect === "NEW LOCATION") {
+    await Location.addLocation(newLocationName);
+    await Location.getAllLocations();
+    Personnel.populateSearchResults(false);
+    populateLocationSelects();
+  } else {
+    const locationId = Location.getLocationByName(locationNameSelect).id;
+    await Location.updateLocation(newLocationName, locationId);
+    await Location.getAllLocations();
+    Personnel.populateSearchResults(false);
+    populateLocationSelects();
+  }
+}
+
+// EDIT LOCATIONS - Delete Location
+async function deleteLocation() {
+  const locationNameSelect = $("#location-select").val();
+  let locationId;
+  try {
+    locationId = Location.getLocationByName(locationNameSelect).id;
+    const inUseCount = checkIfLocationInUse(locationId);
+    if (inUseCount <= 0) { 
+      const success = await Location.deleteLocation(locationId);
+      if (success) {
+        console.log("Successfully deleted location!");
+        // TODO if success don't update server just remove from dep array
+        await Location.getAllLocations();
+        populateLocationSelects();
+      } else {
+        console.log("Failed to delete location!");
+      }
+    } else {
+      console.log(`Cannot delete ${locationNameSelect} as it is used by ${inUseCount} departments!`);
+    }
+  } catch(e) {
+    return;
   }
 }
 
@@ -635,21 +692,37 @@ $(".bottom-tab").on("click", e => {
 
 // EDIT DEPARTMENTS - Department Select
 $("#department-select").on("change", () => {
+  // TODO Add department field reset
   updateEditDepartmentFields();
 });
 
-// Save / Add new department
+// EDIT DEPARTMENTS - Save / Add new department button
 $("#save-department").on("click", () => {
   saveDepartment();
 });
 
-// Delete department
+// EDIT DEPARTMENTS - Delete department button
 $("#delete-department").on("click", () => {
   deleteDepartment();
 });
 
+// EDIT LOCATIONS - Location Select
+$("#location-select").on("change", () => {
+  updateEditLocationFields();
+});
 
-// INIT SETUP //
+// EDIT LOCATIONS - Save Location button
+$("#save-location").on("click", () => {
+  saveLocation();
+});
+
+// EDIT LOCATIONS - Delete Location Button
+$("#delete-location").on("click", () => {
+  deleteLocation();
+});
+
+
+//~~~~~~ INIT SETUP ~~~~~~~//
 async function initSetup() { 
   await Department.getAllDepartments();
   await Location.getAllLocations();
@@ -659,5 +732,4 @@ async function initSetup() {
   populateDepartmentSelects();
   updateShowingCounter();
 }
-
 initSetup();
