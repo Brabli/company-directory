@@ -9,6 +9,11 @@ html {
   --backing-grey: rgb(120, 120, 120);
   --selected-grey: rgb(171, 171, 171);
   --selected-orange: rgb(255, 98, 0);
+  --alt-grey: rgb(137, 137, 137);
+}
+
+.alt-grey {
+  background-color: var(--alt-grey);
 }
 
 .b-right {
@@ -176,13 +181,74 @@ body {
   justify-content: space-between;
 }
 
+.showing-container {
+  display: flex;
+  flex-direction: row;
+  height: 0.5rem;
+}
+
 .showing-counter {
   font-size: 0.6rem;
   color: snow;
 }
 
+.circle-button {
+  display: inline-block;
+  border: 1px solid white;
+  border-radius: 50%;
+  height: 0.7rem;
+  width: 0.7rem;
+  margin-left: 0.2rem;
+  transition: 0.2s;
+}
+
+.active-circle {
+  background-color: white;
+}
+
 .search-results-container {
+  overflow: auto;
+  background-color: var(--backing-grey);
+}
+
+.table-container {
+  display: none;
+  flex-direction: column;
+  margin-bottom: 2rem;
+}
+
+.person-row  {
+  font-size: 0.8rem;
   display: flex;
+  border-bottom: 1px solid black;
+}
+
+.cell {
+  padding: 0.3rem;
+  /* width: 25%; */
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell-name, .cell-location {
+  width: 23%;
+}
+
+.cell-department, .cell-job-title {
+  width: 27%;
+}
+
+.selected-row {
+  background-color: var(--selected-orange);
+  color: white;
+  border: 2px solid black;
+}
+
+
+.card-container {
+  display: none;
   flex-wrap: wrap;
   justify-content: flex-start; /* center */
   padding: 0.1rem;
@@ -191,6 +257,10 @@ body {
   background-color: var(--backing-grey);
   /* Margin makes sure Edit Tabs don't cover up search results. */
   margin-bottom: 2rem;
+}
+
+.selected-results-container {
+  display: flex;
 }
 
 .person-card {

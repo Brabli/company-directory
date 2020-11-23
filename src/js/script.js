@@ -89,12 +89,16 @@ class Personnel {
   static async populateSearchResults(refresh = true) {
     if (refresh) await Personnel.getAllPersonnel();
 
-    $(".search-results-container").html("");
+    $(".card-container").html("");
+    $(".table-container").html("");
+    let counter = 0;
+    let altClass;
     Personnel.personnel.forEach(person => {
+      counter % 2 === 0 ? altClass = "alt-grey" : altClass = "";
       const department = Department.getDepartmentById(person.departmentID);
       const location = Location.getLocationById(department.locationID)
-      
-      $(".search-results-container").append(`
+      // CARDS
+      $(".card-container").append(`
       <div class="person-card" data-id="${person.id}">
         <div class="card-info-group">
           <p class="card-data card-name">${person.firstName} ${person.lastName}</p>
@@ -108,6 +112,15 @@ class Personnel {
           <p class="card-data card-location">${location.name}</p>
         </div>
       </div>`);
+      // ROWS
+      $(".table-container").append(`
+      <div class="person-row ${altClass}" data-id="${person.id}">
+        <div class="cell cell-name b-right">${person.firstName} ${person.lastName}</div>
+        <div class="cell cell-job-title b-right">${person.jobTitle}Supervisor Manager</div>
+        <div class="cell cell-department b-right">${department.name}</div>
+        <div class="cell cell-location">${location.name}</div>
+      </div>`);
+      counter++;
     });
 
     // Card Select Event listener
@@ -721,6 +734,11 @@ $("#delete-location").on("click", () => {
   deleteLocation();
 });
 
+$(".circle-button").on("click", () => {
+  $(".circle-button").toggleClass("active-circle");
+  $(".card-container").toggleClass("selected-results-container");
+  $(".table-container").toggleClass("selected-results-container");
+});
 
 //~~~~~~ INIT SETUP ~~~~~~~//
 async function initSetup() { 
