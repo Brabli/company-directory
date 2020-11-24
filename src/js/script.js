@@ -91,10 +91,8 @@ class Personnel {
 
     $(".card-container").html("");
     $(".table-container").html("");
-    let counter = 0;
-    let altClass;
+
     Personnel.personnel.forEach(person => {
-      counter % 2 === 0 ? altClass = "alt-grey" : altClass = "";
       const department = Department.getDepartmentById(person.departmentID);
       const location = Location.getLocationById(department.locationID)
       // CARDS
@@ -114,19 +112,19 @@ class Personnel {
       </div>`);
       // ROWS
       $(".table-container").append(`
-      <div class="person-row ${altClass}" data-id="${person.id}">
+      <div class="person-row even" data-id="${person.id}">
         <div class="cell cell-name b-right">${person.firstName} ${person.lastName}</div>
         <div class="cell cell-job-title b-right">${person.jobTitle}Supervisor Manager</div>
         <div class="cell cell-department b-right">${department.name}</div>
         <div class="cell cell-location">${location.name}</div>
       </div>`);
-      counter++;
     });
 
     // Card Select Event listener
-    $(".person-card").on("click", e => {
+    $(".person-card, .person-row").on("click", e => {
       Personnel.currentlySelectedId = $(e.currentTarget).data("id").toString();
       selectCard(Personnel.currentlySelectedId);
+      selectRow(Personnel.currentlySelectedId);
     });
 
     filterResults();
@@ -321,33 +319,48 @@ class Location {
 
 // Filters results, hiding results that do not match the filters.
 function filterResults() {
-  // TODO Change to a REGULAR FUNCTION NOT AN ARROW FUNCTION!!!
-  // setTimeout() is sadly required to prevent a bug with name search box.
-  // jQuery .each() breaks a bit when inside a timeout, so I couldn't use it here.
-  // IE, $(this) refers to the window object instead of the current jQuery object.
+  // setTimeout() is required to prevent a bug with name search box.
   setTimeout(() => {
-    // Get filter values
+
     const filterNameString = $("#name-filter").val().toLowerCase().trim();
     const filterDepString = $("#department-filter").val();
     const filterLocString = $("#location-filter").val();
+    
     // Loop over all results.
-    $(".person-card").each( (i, card) => {
+    $(".person-card").each(function() {
       // Get card values.
-      const cardDepartment = card.getElementsByClassName("card-department")[0].innerHTML;
-      const cardLocation = card.getElementsByClassName("card-location")[0].innerHTML;
-      const cardName = card.getElementsByClassName("card-name")[0].innerHTML;
+      const cardDepartment = $(this).find(".card-department").html();
+      const cardLocation = $(this).find(".card-location").html();
+      const cardName = $(this).find(".card-name").html();
+      const personnelId = $(this).data("id");
+      const $row = getRowById(personnelId)
+
+      $(".table-container").find()
       // Test each value against the appropriate filter.
       const depFilter = testDepartment(cardDepartment, filterDepString);
-      if (depFilter) { card.style.display = "none"; return; };
+      if (depFilter) {
+        $row .css("display", "none");
+        $(this).css("display", "none");
+        return; };
       const locFilter = testLocation(cardLocation, filterLocString);
-      if (locFilter) { card.style.display = "none"; return; };
+      if (locFilter) {
+        $row .css("display", "none");
+        $(this).css("display", "none");
+        return; };
       const nameFilter = testName(cardName, filterNameString);
-      if (nameFilter) { card.style.display = "none"; return; };
+      if (nameFilter) { 
+        $row .css("display", "none");
+        $(this).css("display", "none");
+        return;
+      };
       // If card does not get flagged by the filter, set display to flex.
-      card.style.display = "flex";
+      $row.css("display", "flex");
+      $(this).css("display", "flex");
     });
     // Refresh counter after filtering,
+    colourRows();
     updateShowingCounter();
+
   }, 0)
 }
 
@@ -379,6 +392,25 @@ function updateShowingCounter() {
   });
   $(".showing-count").html(totalVisible);
   $(".total-count").html(total);
+}
+
+// Colours rows after filtering.
+function colourRows() {
+  let counter = 0;
+  $(".person-row").each(function() {
+    if ($(this).css("display") === "none") {
+      return;
+    } else {
+      if (counter % 2 === 0) {
+        $(this).removeClass("odd");
+        $(this).addClass("even");
+      } else {
+        $(this).removeClass("even");
+        $(this).addClass("odd");
+      }
+      counter++;
+    }
+  });
 }
 
 // Refreshes location select elements.
@@ -460,20 +492,35 @@ function reselectCard() {
   selectCard(Personnel.currentlySelectedId);
 }
 
+// Reselects the previously selected row
+function reselectRow() {
+  selectRow(Personnel.currentlySelectedId);
+}
+
 // Returns card by personnel id.
 function getCardById(personnelId) {
   return $(`.person-card[data-id="${personnelId}"`);
 }
 
-// Selects card
+// Returns row by personnel id.
+function getRowById(personnelId) {
+  return $(`.person-row[data-id="${personnelId}"`);
+}
+
+// Selects row.
+function selectRow(personnelId) {
+  const $row = getRowById(personnelId);
+  $row.addClass("selected-row");
+  $row.siblings().removeClass("selected-row");
+}
+
+// Selects card and writes data to Edit tab.
 function selectCard(personnelId) {
   const $card = getCardById(personnelId);
   const person = Personnel.getPersonById(Personnel.currentlySelectedId);
   const personDepartment = Department.getDepartmentById(person.departmentID).name;
-
   $card.addClass("selected-card");
   $card.siblings().removeClass("selected-card");
-
   $("#edit-first-name").val(person.firstName);
   $("#edit-last-name").val(person.lastName);
   $("#edit-email").val(person.email);
@@ -495,6 +542,7 @@ async function saveEditChanges() {
   await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
   await Personnel.populateSearchResults(true);
 
+  reselectRow()
   reselectCard();
 }
 
@@ -510,6 +558,7 @@ async function addPersonnel() {
   await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
   await Personnel.populateSearchResults(true);
 
+  reselectRow()
   reselectCard();
 }
 
