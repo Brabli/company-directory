@@ -122,9 +122,13 @@ class Personnel {
 
     // Card Select Event listener
     $(".person-card, .person-row").on("click", e => {
-      Personnel.currentlySelectedId = $(e.currentTarget).data("id").toString();
-      selectCard(Personnel.currentlySelectedId);
-      selectRow(Personnel.currentlySelectedId);
+      if (Personnel.currentlySelectedId === $(e.currentTarget).data("id").toString()) {
+        Personnel.currentlySelectedId = null;
+        deselectPerson();
+      } else {
+        Personnel.currentlySelectedId = $(e.currentTarget).data("id").toString();
+        selectPerson(Personnel.currentlySelectedId);
+      }
     });
 
     filterResults();
@@ -487,14 +491,30 @@ function resetFilter() {
   filterResults();
 }
 
-// Reselects the previously selected card
-function reselectCard() {
-  selectCard(Personnel.currentlySelectedId);
+function resetEditTab() {
+  
 }
 
-// Reselects the previously selected row
-function reselectRow() {
-  selectRow(Personnel.currentlySelectedId);
+
+function selectPerson(personnelId) {
+  const $card = getCardById(personnelId);
+  const $row = getRowById(personnelId);
+  const personData = Personnel.getPersonById(Personnel.currentlySelectedId);
+  const personDepartment = Department.getDepartmentById(personData.departmentID).name;
+  $card.addClass("selected-card");
+  $row.addClass("selected-row");
+  $card.siblings().removeClass("selected-card");
+  $row.siblings().removeClass("selected-row");
+  $("#edit-first-name").val(personData.firstName);
+  $("#edit-last-name").val(personData.lastName);
+  $("#edit-email").val(personData.email);
+  $("#edit-job-title").val(personData.jobTitle);
+  $("#edit-department").val(personDepartment);
+}
+
+// Reselects the last selected peron.
+function reselectPerson() {
+  selectPerson(Personnel.currentlySelectedId);
 }
 
 // Returns card by personnel id.
@@ -507,25 +527,15 @@ function getRowById(personnelId) {
   return $(`.person-row[data-id="${personnelId}"`);
 }
 
-// Selects row.
-function selectRow(personnelId) {
-  const $row = getRowById(personnelId);
-  $row.addClass("selected-row");
-  $row.siblings().removeClass("selected-row");
-}
-
-// Selects card and writes data to Edit tab.
-function selectCard(personnelId) {
-  const $card = getCardById(personnelId);
-  const person = Personnel.getPersonById(Personnel.currentlySelectedId);
-  const personDepartment = Department.getDepartmentById(person.departmentID).name;
-  $card.addClass("selected-card");
-  $card.siblings().removeClass("selected-card");
-  $("#edit-first-name").val(person.firstName);
-  $("#edit-last-name").val(person.lastName);
-  $("#edit-email").val(person.email);
-  $("#edit-job-title").val(person.jobTitle);
-  $("#edit-department").val(personDepartment);
+// Deselects a person.
+function deselectPerson() {
+  $(".person-card").removeClass("selected-card");
+  $(".person-row").removeClass("selected-row");
+  $("#edit-first-name").val("");
+  $("#edit-last-name").val("");
+  $("#edit-email").val("");
+  $("#edit-job-title").val("");
+  $("#edit-department").val("");
 }
 
 // EDIT TAB - Save Changes
@@ -542,8 +552,7 @@ async function saveEditChanges() {
   await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
   await Personnel.populateSearchResults(true);
 
-  reselectRow()
-  reselectCard();
+  reselectPerson();
 }
 
 // ADD TAB - Add new personnel
@@ -558,8 +567,7 @@ async function addPersonnel() {
   await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
   await Personnel.populateSearchResults(true);
 
-  reselectRow()
-  reselectCard();
+  reselectPerson();
 }
 
 // DELETE TAB - Delete selected personnel

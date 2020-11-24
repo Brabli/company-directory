@@ -238,7 +238,7 @@ body {
 
     .selected-row {
       background-color: var(--selected-orange);
-      color: white;
+      /* color: white; */
     }
 
 .cell {
