@@ -18,8 +18,8 @@
       <div class="tab-container">
         <div class="tab b-right selected-tab" id="search-tab">search</div>
         <div class="tab b-right" id="add-tab">add</div>
-        <div class="tab b-right" id="edit-tab">edit</div>
-        <div class="tab" id="delete-tab">delete</div>
+        <div class="tab b-right disabled" id="edit-tab">edit</div>
+        <div class="tab disabled" id="delete-tab">delete</div>
       </div>
       
       <!-- Menu Container -->
@@ -50,31 +50,31 @@
         <div class="menu add-menu" id="add-menu">
 
           <div class="input-container">
-            <label for="add-first-name">first name</label>
-            <input type="text" id="add-first-name" />
+            <label for="add-first-name" class="required">first name</label>
+            <input type="text" id="add-first-name" class="add-tab-text-input add-tab-input" />
           </div>
 
           <div class="input-container">
-            <label for="add-last-name">last name</label>
-            <input type="text" id="add-last-name" />
+            <label for="add-last-name" class="required">last name</label>
+            <input type="text" id="add-last-name" class="add-tab-text-input add-tab-input" />
           </div>
 
           <div class="input-container">
             <label for="add-email">email</label>
-            <input type="text" id="add-email" />
+            <input type="text" id="add-email" class="add-tab-input" />
           </div>
 
           <div class="input-container">
             <label for="add-job-title">job title</label>
-            <input type="text" id="add-job-title" />
+            <input type="text" id="add-job-title" class="add-tab-input" />
           </div>
 
           <div class="input-container">
-            <label for="add-department">department</label>
-            <select id="add-department"></select>
+            <label for="add-department" class="required">department</label>
+            <select id="add-department" class="add-tab-select-input add-tab-input"></select>
           </div>
 
-          <div class="button" id="add-entry" data-id="">create entry</div>
+          <div class="button disabled" id="add-entry" data-id="">create entry</div>
 
         </div>
         <!-- EDIT TAB -->
@@ -82,30 +82,30 @@
 
           <div class="input-container">
             <label for="edit-first-name">first name</label>
-            <input type="text" id="edit-first-name" />
+            <input type="text" class="edit-tab-text-input" id="edit-first-name" />
           </div>
 
           <div class="input-container">
             <label for="edit-last-name">last name</label>
-            <input type="text" id="edit-last-name" />
+            <input type="text" class="edit-tab-text-input" id="edit-last-name" />
           </div>
 
           <div class="input-container">
             <label for="edit-email">email</label>
-            <input type="text" id="edit-email" />
+            <input type="text" class="edit-tab-text-input" id="edit-email" />
           </div>
 
           <div class="input-container">
             <label for="edit-job-title">job title</label>
-            <input type="text" id="edit-job-title" />
+            <input type="text" class="edit-tab-text-input" id="edit-job-title" />
           </div>
 
           <div class="input-container">
             <label for="edit-department">department</label>
-            <select id="edit-department"></select>
+            <select class="edit-tab-select-input" id="edit-department"></select>
           </div>
 
-          <div class="button" id="save-changes" data-id="">save changes</div>
+          <div class="button disabled" id="save-changes" data-id="">save changes</div>
 
         </div>
         <!-- DELETE TAB -->

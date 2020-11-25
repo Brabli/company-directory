@@ -3,7 +3,7 @@
 class Personnel {
 
   static personnel = [];
-  static currentlySelectedId;
+  static currentlySelectedId = null;
 
   // Return array of all personnel rows
   static async getAllPersonnel() {
@@ -125,9 +125,14 @@ class Personnel {
       if (Personnel.currentlySelectedId === $(e.currentTarget).data("id").toString()) {
         Personnel.currentlySelectedId = null;
         deselectPerson();
+        disableTabs();
       } else {
         Personnel.currentlySelectedId = $(e.currentTarget).data("id").toString();
         selectPerson(Personnel.currentlySelectedId);
+        enableTabs();
+        if (App.currentlySelectedTab === "edit" || App.currentlySelectedTab === "delete") {
+          reselectTab();
+        }
       }
     });
 
@@ -135,7 +140,16 @@ class Personnel {
   }
 }
 
-
+// This class acts as a global var container.
+class App {
+  static currentlySelectedTab = null;
+  // Used when enabling or disabling EDIT tab save changes button.
+  static selectedPersonFirstName = null;
+  static selectedPersonLastName = null;
+  static selectedPersonEmail = null;
+  static selectedPersonJobTitle = null;
+  static selectedPersonDepartment = null;
+}
 
 /* DEPARTMENT CLASS */
 /*~~~~~~~~~~~~~~~~~~*/
@@ -389,9 +403,8 @@ function testName(cardName, filterNameString) {
 // Updates the counter in Seach Results title bar.
 function updateShowingCounter() {
   let total = 0, totalVisible = 0;
-  $(".person-card").each( (i, obj) => {
-    // On load, obj.style.display is "" for some reason. The || is used for this reason.
-    if (obj.style.display === "flex" || obj.style.display === "") totalVisible++;
+  $(".person-card").each(function() {
+    if ($(this).css("display") === "flex") totalVisible++;
     total++;
   });
   $(".showing-count").html(totalVisible);
@@ -444,10 +457,42 @@ function populateDepartmentSelects() {
 function changeMainTab(e) {
   const $tab = $(e.currentTarget);
   const $tabMenu = $(`.${$tab.html()}-menu`);
-  $tab.addClass("selected-tab");
-  $tabMenu.addClass("selected-menu");
-  $tab.siblings().removeClass("selected-tab");
-  $tabMenu.siblings().removeClass("selected-menu");
+  if ($tab.hasClass("disabled")) return;
+  if ($tab.hasClass("selected-tab")) {
+    $tab.removeClass("selected-tab");
+    $tabMenu.removeClass("selected-menu");
+    App.currentlySelectedTab = null;
+  } else {
+    $tab.addClass("selected-tab");
+    $tabMenu.addClass("selected-menu");
+    $tab.siblings().removeClass("selected-tab");
+    $tabMenu.siblings().removeClass("selected-menu");
+    App.currentlySelectedTab = $tab.html();
+  }
+}
+
+// Reselects the previously selected tab.
+function reselectTab() {
+  const tabName = App.currentlySelectedTab;
+  $(`#${tabName}-tab`).addClass("selected-tab");
+  $(`.${tabName}-menu`).addClass("selected-menu");
+}
+
+// Enables EDIT and DELETE tabs.
+function enableTabs() {
+  console.log("Run")
+  $("#edit-tab").removeClass("disabled");
+  $("#delete-tab").removeClass("disabled");
+}
+
+// Disables EDIT and DELETE tabs.
+function disableTabs() {
+  $("#edit-tab").addClass("disabled");
+  $("#delete-tab").addClass("disabled");
+  $("#edit-tab").removeClass("selected-tab");
+  $("#delete-tab").removeClass("selected-tab");
+  $(".edit-menu").removeClass("selected-menu");
+  $(".delete-menu").removeClass("selected-menu");
 }
 
 // Switches between bottom tabs.
@@ -491,11 +536,7 @@ function resetFilter() {
   filterResults();
 }
 
-function resetEditTab() {
-  
-}
-
-
+// Selects Person Card and Row and fills out EDIT tab's fields.
 function selectPerson(personnelId) {
   const $card = getCardById(personnelId);
   const $row = getRowById(personnelId);
@@ -510,10 +551,50 @@ function selectPerson(personnelId) {
   $("#edit-email").val(personData.email);
   $("#edit-job-title").val(personData.jobTitle);
   $("#edit-department").val(personDepartment);
+  App.selectedPersonFirstName = personData.firstName.toLowerCase();
+  App.selectedPersonLastName = personData.lastName.toLowerCase();
+  App.selectedPersonEmail = personData.email.toLowerCase();
+  App.selectedPersonJobTitle = personData.jobTitle.toLowerCase();
+  App.selectedPersonDepartment = personDepartment.toLowerCase();
+  checkEditDifferences();
+}
+
+// Checks to see if an edit has been made before enabling the save button.
+function checkEditDifferences() {
+  setTimeout(() => {
+    if (
+      $("#edit-first-name").val().toLowerCase() === App.selectedPersonFirstName &&
+      $("#edit-last-name").val().toLowerCase() === App.selectedPersonLastName &&
+      $("#edit-email").val().toLowerCase() === App.selectedPersonEmail &&
+      $("#edit-job-title").val().toLowerCase() === App.selectedPersonJobTitle &&
+      $("#edit-department").val().toLowerCase() === App.selectedPersonDepartment
+    ) 
+    {
+      $("#save-changes").addClass("disabled");
+    } else {
+      $("#save-changes").removeClass("disabled");
+    }
+  }, 0)
+}
+
+// Resets ADD Tab input fields.
+function checkAddTabRequiredFields() {
+  setTimeout(() => {
+    if (
+    $("#add-first-name").val() !== "" &&
+    $("#add-last-name").val() !== "" &&
+    $("#add-department").val() !== null) 
+    {
+      $("#add-entry").removeClass("disabled");
+    } else {
+      $("#add-entry").addClass("disabled");
+    }
+  }, 0);
 }
 
 // Reselects the last selected peron.
 function reselectPerson() {
+  if (Personnel.currentlySelectedId ?? true) return;
   selectPerson(Personnel.currentlySelectedId);
 }
 
@@ -566,16 +647,25 @@ async function addPersonnel() {
   // TODO Add checks here!
   await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
   await Personnel.populateSearchResults(true);
-
+  resetAddTab();
   reselectPerson();
 }
+
+// ADD TAB - Reset Fields
+function resetAddTab() {
+  $(".add-tab-input").val("");
+  $("#add-entry").addClass("disabled");
+}
+
 
 // DELETE TAB - Delete selected personnel
 // TODO Check to see if something is even selected before activating button
 async function deletePersonnel() {
   await Personnel.deletePersonnel(Personnel.currentlySelectedId);
+  
   // TODO Have a better way of doing this
   await Personnel.populateSearchResults();
+  disableTabs();
 }
 
 // EDIT DEPARTMENTS - Department Select Update
@@ -741,17 +831,20 @@ $("#reset-filter-btn").on("click", () => {
 });
 
 // EDIT TAB - Save Changes Button
-$("#save-changes").on("click", () => {
+$("#save-changes").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
   saveEditChanges();
 })
 
 // ADD TAB - Add Entry Button
-$("#add-entry").on("click", () => {
+$("#add-entry").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
   addPersonnel();
 })
 
 // DELETE TAB - Delete Button
-$("#delete-entry").on("click", () => {
+$("#delete-entry").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
   deletePersonnel();
 });
 
@@ -791,11 +884,31 @@ $("#delete-location").on("click", () => {
   deleteLocation();
 });
 
+// Row View Toggle
 $(".circle-button").on("click", () => {
   $(".circle-button").toggleClass("active-circle");
   $(".card-container").toggleClass("selected-results-container");
   $(".table-container").toggleClass("selected-results-container");
 });
+
+// These enable SAVE CHANGES button in EDIT tab if the contents is different to the current data.
+$(".edit-tab-text-input").on("keydown", () => {
+  checkEditDifferences();
+});
+
+$(".edit-tab-select-input").on("change", () => {
+  checkEditDifferences();
+});
+
+$(".add-tab-text-input").on("keydown", () => {
+  checkAddTabRequiredFields();
+});
+
+$(".add-tab-select-input").on("change", () => {
+  checkAddTabRequiredFields();
+});
+
+
 
 //~~~~~~ INIT SETUP ~~~~~~~//
 async function initSetup() { 
@@ -806,5 +919,6 @@ async function initSetup() {
   populateLocationSelects();
   populateDepartmentSelects();
   updateShowingCounter();
+  resetAddTab();
 }
 initSetup();
