@@ -536,6 +536,21 @@ function resetFilter() {
   filterResults();
 }
 
+function resetEditDepartments() {
+  $("#department-select").val("NEW DEPARTMENT");
+  $("#department-name").val("");
+  $("#location-change").val(null);
+  $("#save-department").addClass("disabled");
+  $("#delete-department").addClass("disabled");
+}
+
+function resetEditLocations() {
+  $("#location-select").val("NEW LOCATION");
+  $("#location-name").val("");
+  $("#save-location").addClass("disabled");
+  $("#delete-location").addClass("disabled");
+}
+
 // Selects Person Card and Row and fills out EDIT tab's fields.
 function selectPerson(personnelId) {
   const $card = getCardById(personnelId);
@@ -712,6 +727,7 @@ async function saveDepartment() {
     populateDepartmentSelects();
     await Personnel.populateSearchResults();
   }
+  resetEditDepartments();
 }
 
 // EDIT DEPARTMENTS - Delete existing department
@@ -734,6 +750,7 @@ async function deleteDepartment() {
       console.log(`Cannot delete department as ${inUseCount} personnel are in this department!`);
     }
   }
+  resetEditDepartments();
 }
 
 // EDIT LOCATIONS - Location Select Update
@@ -920,5 +937,7 @@ async function initSetup() {
   populateDepartmentSelects();
   updateShowingCounter();
   resetAddTab();
+  resetEditDepartments();
+  resetEditLocations();
 }
 initSetup();
