@@ -24,6 +24,7 @@
       
       <!-- Menu Container -->
       <div class="menu-container">
+
         <!-- SEARCH MENU -->
         <div class="menu search-menu selected-menu">
           <!-- Name Filter -->
@@ -46,6 +47,7 @@
             reset filter
           </div>
         </div>
+
         <!-- ADD TAB -->
         <div class="menu add-menu" id="add-menu">
 
@@ -77,6 +79,7 @@
           <div class="button disabled" id="add-entry" data-id="">create entry</div>
 
         </div>
+
         <!-- EDIT TAB -->
         <div class="menu edit-menu" id="edit-menu">
 
@@ -114,21 +117,21 @@
           <div class="button delete-button" id="delete-entry">DELETE SELECTED</div>
         </div>
       </div>
+
       <!-- Search Results Title -->
       <div class="title-bar results-bar">
-        <p>Search Results</p>
-        <div class="showing-continer">
-          
-          <div>
-            <span class="showing-counter">Showing <span class="showing-count">0</span> of <span class="total-count">0</span></span>
-          </div>
 
+        <div class="results-title-container">
+          <p>Search Results</p>
           <div class="circle-button"></div>
         </div>
-        
+
+        <div class="counter-container">
+          <span class="showing-counter">Showing <span class="showing-count">0</span> of <span class="total-count">0</span></span>.
+        </div>
+          
+        </div>
       </div>
-      <!-- TOGGLE BUTTON -->
-      
     </div>
     
 
@@ -186,8 +189,8 @@
       </div>
 
       <div class="button-container">
-        <div class="button" id="save-location">save location</div>
-        <div class="button delete-button" id="delete-location">delete location</div>
+        <div class="button disabled" id="save-location">save location</div>
+        <div class="button delete-button disabled" id="delete-location">delete location</div>
       </div>
     </div>
 
