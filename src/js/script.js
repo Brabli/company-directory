@@ -712,6 +712,7 @@ function updateEditDepartmentFields() {
   }
 }
 
+// TODO Split into two functions?
 // EDIT DEPARTMENTS - Save or Add Department
 async function saveDepartment() {
   const selectedDepartment = $("#department-select").val();
@@ -849,7 +850,40 @@ function reselectDepartment(departmentId) {
   updateEditDepartmentFields();
 }
 
-// TODO make sure a new department with name that's the same as an existing department can't be created
+// TODO on Dep Edit save reselct edited dep
+function checkEditDepartmentFields() {
+  setTimeout(() => {
+    const selectedDepartment = $("#department-select").val();
+    const newDepName = $("#department-name").val().trim();
+    const depLocation = $("#location-change").val();
+    // New Department
+    if (selectedDepartment === "NEW DEPARTMENT") {
+      if (checkDepartmentNames(newDepName) || depLocation === null) {
+        $("#save-department").addClass("disabled");
+        $("#delete-department").addClass("disabled");
+      } else {
+        $("#save-department").removeClass("disabled");
+      }
+    // Edit Department
+    } else {
+      const departmentId = Department.getDepartmentByName(selectedDepartment).id;
+      const inUseCount = checkIfDepartmentInUse(departmentId);
+      if (inUseCount <= 0) {
+        $("#delete-department").removeClass("disabled");
+      } else {
+        $("#delete-department").addClass("disabled");
+      }
+      
+      if ((App.selectedDepCurrentName.toLowerCase() === newDepName.toLowerCase() &&
+      App.selectedDepCurrentLoc === depLocation) ||
+      newDepName === "") {
+        $("#save-department").addClass("disabled");
+      } else {
+        $("#save-department").removeClass("disabled");
+      }
+    }
+  }, 0);
+}
 
 /* EVENT LISTENERS */
 /*~~~~~~~~~~~~~~~~*/
@@ -970,40 +1004,6 @@ $("#location-change").on("change", () => {
   checkEditDepartmentFields();
 });
 
-// TODO on Dep Edit save reselct edited dep
-function checkEditDepartmentFields() {
-  setTimeout(() => {
-    const selectedDepartment = $("#department-select").val();
-    const newDepName = $("#department-name").val().trim();
-    const depLocation = $("#location-change").val();
-    // New Department
-    if (selectedDepartment === "NEW DEPARTMENT") {
-      if (checkDepartmentNames(newDepName) || depLocation === null) {
-        $("#save-department").addClass("disabled");
-        $("#delete-department").addClass("disabled");
-      } else {
-        $("#save-department").removeClass("disabled");
-      }
-    // Edit Department
-    } else {
-      const departmentId = Department.getDepartmentByName(selectedDepartment).id;
-      const inUseCount = checkIfDepartmentInUse(departmentId);
-      if (inUseCount <= 0) {
-        $("#delete-department").removeClass("disabled");
-      } else {
-        $("#delete-department").addClass("disabled");
-      }
-      
-      if ((App.selectedDepCurrentName.toLowerCase() === newDepName.toLowerCase() &&
-      App.selectedDepCurrentLoc === depLocation) ||
-      newDepName === "") {
-        $("#save-department").addClass("disabled");
-      } else {
-        $("#save-department").removeClass("disabled");
-      }
-    }
-  }, 0);
-}
 
 //~~~~~~ INIT SETUP ~~~~~~~//
 async function initSetup() { 
