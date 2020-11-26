@@ -239,6 +239,7 @@ class Department {
 // This class acts as a global var container.
 // TODO move these to appropriate clases; no need for an App class
 class App {
+  static timeout;
   static currentlySelectedTab = null;
   // Used when enabling or disabling EDIT tab save changes button.
   static selectedPersonFirstName = null;
@@ -873,7 +874,7 @@ function checkEditDepartmentFields() {
     const selectedDepartment = $("#department-select").val();
     const newDepName = $("#department-name").val().trim();
     const depLocation = $("#location-change").val();
-    // New Department
+    // Add New Department
     if (selectedDepartment === "NEW DEPARTMENT") {
       if (checkDepartmentNames(newDepName) || depLocation === null) {
         $("#save-department").addClass("disabled");
@@ -900,6 +901,45 @@ function checkEditDepartmentFields() {
       }
     }
   }, 0);
+}
+
+// Checks Edit Location fields
+function checkEditLocationFields() {
+  setTimeout(() => {
+    const selectedLocation = $("#location-select").val();
+    const locationName = $("#location-name").val();
+    // Add New Location
+    if (selectedLocation === "NEW LOCATION") {
+      if (checkLocationNames(locationName)) {
+        $("#save-location").addClass("disabled");
+        $("#delete-location").addClass("disabled");
+      } else {
+        $("#save-location").removeClass("disabled");
+      }
+    } else {
+      // Edit Location
+      const inUseCount = checkIfLocationInUse(Location.currentlySelectedId);
+      if (inUseCount <= 0) {
+        $("#delete-location").removeClass("disabled");
+      } else {
+        $("#delete-location").addClass("disabled");
+      }
+      if (checkLocationNames(locationName)) {
+        $("#save-location").addClass("disabled");
+      } else {
+        $("#save-location").removeClass("disabled");
+      }
+    }
+  }, 0);
+}
+
+// Displays a message to the user for a few seconds
+function showMessage(msg, colour = snow) {
+  clearTimeout(App.timeout);
+  $(".message-output").html(msg).css("color", colour);
+  App.timeout = setTimeout(() => {
+    $(".message-output").html("Company Directory").css("color", "snow");
+  }, 3000);
 }
 
 /* EVENT LISTENERS */
@@ -1024,36 +1064,6 @@ $("#delete-location").on("click", e => {
   if ($(e.currentTarget).hasClass("disabled")) return;
   deleteLocation();
 });
-
-function checkEditLocationFields() {
-  setTimeout(() => {
-    const selectedLocation = $("#location-select").val();
-    const locationName = $("#location-name").val();
-    if (selectedLocation === "NEW LOCATION") {
-      if (checkLocationNames(locationName)) {
-        $("#save-location").addClass("disabled");
-        $("#delete-location").addClass("disabled");
-      } else {
-        $("#save-location").removeClass("disabled");
-      }
-    } else {
-      const inUseCount = checkIfLocationInUse(Location.currentlySelectedId);
-      console.log(Location.currentlySelectedId);
-      if (inUseCount <= 0) {
-        $("#delete-location").removeClass("disabled");
-      } else {
-        $("#delete-location").addClass("disabled");
-      }
-      if (checkLocationNames(locationName)) {
-        $("#save-location").addClass("disabled");
-      } else {
-        $("#save-location").removeClass("disabled");
-      }
-      console.log(inUseCount);
-
-    }
-  }, 0);
-}
 
 //~~~~~~ INIT SETUP ~~~~~~~//
 async function initSetup() { 
