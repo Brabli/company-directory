@@ -141,6 +141,7 @@ class Personnel {
 }
 
 // This class acts as a global var container.
+// TODO move these to appropriate clases; no need for an App class
 class App {
   static currentlySelectedTab = null;
   // Used when enabling or disabling EDIT tab save changes button.
@@ -149,6 +150,9 @@ class App {
   static selectedPersonEmail = null;
   static selectedPersonJobTitle = null;
   static selectedPersonDepartment = null;
+  // Used in Edit Departments Tab
+  static selectedDepCurrentName = null;
+  static selectedDepCurrentLoc = null;
 }
 
 /* DEPARTMENT CLASS */
@@ -156,8 +160,7 @@ class App {
 class Department {
 
   static departments = [];
-  static currentlySelectedDepId;
-  static currentltSelectedDepName;
+  static currentlySelectedId = null;
 
   static async getAllDepartments() {
     const res = await fetch("php/getAllDepartments.php");
@@ -202,8 +205,10 @@ class Department {
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
       console.log("Successfully updated department!");
+      return true;
     } else {
       console.log("Failed to update department!");
+      return false;
     }
   }
 
@@ -275,8 +280,10 @@ class Location {
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
       console.log("Successfully added location!");
+      return true;
     } else {
       console.log("Failed to add location!");
+      return false;
     }
   }
 
@@ -292,8 +299,10 @@ class Location {
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
       console.log("Successfully updated!");
+      return true;
     } else {
       console.log("Update failed!");
+      return false;
     }
   }
 
@@ -308,8 +317,10 @@ class Location {
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
       console.log("Successfully deleted!");
+      return true;
     } else {
       console.log("Delete failed!");
+      return false;
     }
   }
   
@@ -536,6 +547,7 @@ function resetFilter() {
   filterResults();
 }
 
+// Resets Edit Departments Tab
 function resetEditDepartments() {
   $("#department-select").val("NEW DEPARTMENT");
   $("#department-name").val("");
@@ -544,6 +556,7 @@ function resetEditDepartments() {
   $("#delete-department").addClass("disabled");
 }
 
+// Resets Edit Locations Tab
 function resetEditLocations() {
   $("#location-select").val("NEW LOCATION");
   $("#location-name").val("");
@@ -635,7 +648,6 @@ function deselectPerson() {
 }
 
 // EDIT TAB - Save Changes
-// TODO Add check so only if a field is edited does the button become active.
 async function saveEditChanges() {
   const id = Personnel.currentlySelectedId;
   const fName = $("#edit-first-name").val();
@@ -674,10 +686,8 @@ function resetAddTab() {
 
 
 // DELETE TAB - Delete selected personnel
-// TODO Check to see if something is even selected before activating button
 async function deletePersonnel() {
   await Personnel.deletePersonnel(Personnel.currentlySelectedId);
-  
   // TODO Have a better way of doing this
   await Personnel.populateSearchResults();
   disableTabs();
@@ -687,14 +697,18 @@ async function deletePersonnel() {
 function updateEditDepartmentFields() {
   const departmentName = $("#department-select").val();
   if (departmentName === "NEW DEPARTMENT") {
-    // TODO deactivate button until both values are not blank.
+    Department.currentlySelectedId = null;
     $("#department-name").val("");
     $("#location-change").val("");
   } else {
+    
     const locationId = Department.getDepartmentByName(departmentName).locationID;
     const locationName = Location.getLocationById(locationId).name;
     $("#location-change").val(locationName);
     $("#department-name").val(departmentName);
+    Department.currentlySelectedId = Department.getDepartmentByName(departmentName).id;
+    App.selectedDepCurrentName = departmentName;
+    App.selectedDepCurrentLoc = locationName;
   }
 }
 
@@ -707,6 +721,7 @@ async function saveDepartment() {
   // Add new department
   if (selectedDepartment === "NEW DEPARTMENT") {
     const success = await Department.addDepartment(newDepartmentName, locationId);
+    console.log(success);
     if (success) {
       console.log("Successfully added new Department!");
     } else {
@@ -714,6 +729,7 @@ async function saveDepartment() {
     }
     await Department.getAllDepartments();
     populateDepartmentSelects();
+    resetEditDepartments();
   // Save changes to current department
   } else {
     const departmentId = Department.getDepartmentByName(selectedDepartment).id;
@@ -724,10 +740,11 @@ async function saveDepartment() {
       console.log("Failed to save department!");
     }
     await Department.getAllDepartments();
-    populateDepartmentSelects();
     await Personnel.populateSearchResults();
+    populateDepartmentSelects();
+    reselectDepartment(departmentId);
+    checkEditDepartmentFields();
   }
-  resetEditDepartments();
 }
 
 // EDIT DEPARTMENTS - Delete existing department
@@ -763,9 +780,16 @@ function updateEditLocationFields() {
   }
 }
 
-// TODO do his for departments also
+// EDIT LOCATIONS - Tests to make sure new location names are valid.
 function checkLocationNames(newLocationName) {
   return Location.locations.find(loc => loc.name.toLowerCase() === newLocationName.toLowerCase());
+}
+
+// Returns true on existing / invalid department name.
+function checkDepartmentNames(newDepartmentName) {
+  newDepartmentName = newDepartmentName.toLowerCase();
+  if (newDepartmentName === "new department" || newDepartmentName === "") return true;
+  return Department.departments.find(dep => dep.name.toLowerCase() === newDepartmentName);
 }
 
 // EDIT LOCATIONS - Save or Add Location
@@ -817,9 +841,15 @@ async function deleteLocation() {
   }
 }
 
+// Reselects last Department - Used after saving changes to an existing department.
+function reselectDepartment(departmentId) {
+  const departmentName = Department.getDepartmentById(departmentId).name;
+  console.log(departmentName);
+  $("#department-select").val(departmentName);
+  updateEditDepartmentFields();
+}
+
 // TODO make sure a new department with name that's the same as an existing department can't be created
-// TODO don't use arrow functions when using $(this).
-// TODO add function -> Reset Edit Department tab.
 
 /* EVENT LISTENERS */
 /*~~~~~~~~~~~~~~~~*/
@@ -872,17 +902,18 @@ $(".bottom-tab").on("click", e => {
 
 // EDIT DEPARTMENTS - Department Select
 $("#department-select").on("change", () => {
-  // TODO Add department field reset
   updateEditDepartmentFields();
 });
 
 // EDIT DEPARTMENTS - Save / Add new department button
-$("#save-department").on("click", () => {
+$("#save-department").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
   saveDepartment();
 });
 
 // EDIT DEPARTMENTS - Delete department button
-$("#delete-department").on("click", () => {
+$("#delete-department").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
   deleteDepartment();
 });
 
@@ -892,12 +923,14 @@ $("#location-select").on("change", () => {
 });
 
 // EDIT LOCATIONS - Save Location button
-$("#save-location").on("click", () => {
+$("#save-location").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
   saveLocation();
 });
 
 // EDIT LOCATIONS - Delete Location Button
-$("#delete-location").on("click", () => {
+$("#delete-location").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
   deleteLocation();
 });
 
@@ -925,7 +958,52 @@ $(".add-tab-select-input").on("change", () => {
   checkAddTabRequiredFields();
 });
 
+$("#department-select").on("change", () => {
+  checkEditDepartmentFields();
+});
 
+$("#department-name").on("keydown", () => {
+  checkEditDepartmentFields();
+});
+
+$("#location-change").on("change", () => {
+  checkEditDepartmentFields();
+});
+
+// TODO on Dep Edit save reselct edited dep
+function checkEditDepartmentFields() {
+  setTimeout(() => {
+    const selectedDepartment = $("#department-select").val();
+    const newDepName = $("#department-name").val().trim();
+    const depLocation = $("#location-change").val();
+    // New Department
+    if (selectedDepartment === "NEW DEPARTMENT") {
+      if (checkDepartmentNames(newDepName) || depLocation === null) {
+        $("#save-department").addClass("disabled");
+        $("#delete-department").addClass("disabled");
+      } else {
+        $("#save-department").removeClass("disabled");
+      }
+    // Edit Department
+    } else {
+      const departmentId = Department.getDepartmentByName(selectedDepartment).id;
+      const inUseCount = checkIfDepartmentInUse(departmentId);
+      if (inUseCount <= 0) {
+        $("#delete-department").removeClass("disabled");
+      } else {
+        $("#delete-department").addClass("disabled");
+      }
+      
+      if ((App.selectedDepCurrentName.toLowerCase() === newDepName.toLowerCase() &&
+      App.selectedDepCurrentLoc === depLocation) ||
+      newDepName === "") {
+        $("#save-department").addClass("disabled");
+      } else {
+        $("#save-department").removeClass("disabled");
+      }
+    }
+  }, 0);
+}
 
 //~~~~~~ INIT SETUP ~~~~~~~//
 async function initSetup() { 

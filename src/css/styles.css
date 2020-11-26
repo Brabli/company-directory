@@ -396,6 +396,7 @@ body {
 .button.disabled:active {
   border-color: black;
   color: var(--navbar-grey);
+  background-color: var(--backing-grey);
 }
 
 .required:after {
