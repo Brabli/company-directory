@@ -43,41 +43,49 @@ class Personnel {
 
   // Update existing personnnel row by ID
   static async updatePersonnel(firstName, lastName, jobTitle, email, departmentId, id) {
-    const res = await fetch("php/updatePersonnel.php", {
-      method: "POST",
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        jobTitle,
-        email,
-        departmentId,
-        id
-      })
-    });
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      console.log("Successful update!");
-      return true;
-    } else {
-      console.log("Update failed!");
+    try {
+      const res = await fetch("php/updatePersonnel.php", {
+        method: "POST",
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          jobTitle,
+          email,
+          departmentId,
+          id
+        })
+      });
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        console.log("Successful update!");
+        return true;
+      } else {
+        console.log("Update failed!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
 
   // Delete personnel row by ID
   static async deletePersonnel(id) {
-    const res = await fetch("php/deletePersonnel.php", {
-      method: "POST",
-      body: JSON.stringify({
-        id
-      })
-    });
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully deleted!");
-      return true;
-    } else {
-      console.log("Delete failed!");
+    try {
+      const res = await fetch("php/deletePersonnel.php", {
+        method: "POST",
+        body: JSON.stringify({
+          id
+        })
+      });
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        console.log("Successfully deleted!");
+        return true;
+      } else {
+        console.log("Delete failed!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
@@ -87,6 +95,7 @@ class Personnel {
   }
 
   static async populateSearchResults(refresh = true) {
+    // If true, refresh will make a request to the server for the most up to date version of the database.
     if (refresh) await Personnel.getAllPersonnel();
 
     $(".card-container").html("");
@@ -135,8 +144,6 @@ class Personnel {
         }
       }
     });
-
-    filterResults();
   }
 }
 
@@ -200,18 +207,22 @@ class Department {
   }
 
   static async deleteDepartment(id) {
-    const res = await fetch("php/deleteDepartment.php", {
-      method: "POST",
-      body: JSON.stringify({
-        id
-      })
-    });
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully deleted!");
-      return true;
-    } else {
-      console.log("Delete failed!");
+    try {
+      const res = await fetch("php/deleteDepartment.php", {
+        method: "POST",
+        body: JSON.stringify({
+          id
+        })
+      });
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        console.log("Successfully deleted!");
+        return true;
+      } else {
+        console.log("Delete failed!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
@@ -235,22 +246,6 @@ class Department {
 }
 
 
-
-// This class acts as a global var container.
-// TODO move these to appropriate clases; no need for an App class
-class App {
-  static timeout;
-  static currentlySelectedTab = null;
-  // Used when enabling or disabling EDIT tab save changes button.
-  static selectedPersonFirstName = null;
-  static selectedPersonLastName = null;
-  static selectedPersonEmail = null;
-  static selectedPersonJobTitle = null;
-  static selectedPersonDepartment = null;
-  // Used in Edit Departments Tab
-  static selectedDepCurrentName = null;
-  static selectedDepCurrentLoc = null;
-}
 
 /* LOCATION CLASS */
 /*~~~~~~~~~~~~~~~~~~*/
@@ -344,6 +339,25 @@ class Location {
     return locationOptionsString;
   }
 }
+
+
+
+// This class acts as a global var container.
+// TODO move these to appropriate clases; no need for an App class
+class App {
+  static timeout;
+  static currentlySelectedTab = null;
+  // Used when enabling or disabling EDIT tab save changes button.
+  static selectedPersonFirstName = null;
+  static selectedPersonLastName = null;
+  static selectedPersonEmail = null;
+  static selectedPersonJobTitle = null;
+  static selectedPersonDepartment = null;
+  // Used in Edit Departments Tab
+  static selectedDepCurrentName = null;
+  static selectedDepCurrentLoc = null;
+}
+
 
 
 /* FUNCTIONS */
@@ -444,8 +458,7 @@ function colourRows() {
   });
 }
 
-// Refreshes location select elements.
-// TODO Refresh beforehand?
+// Populates location select elements.
 function populateLocationSelects() {
   const standardLocOptions = Location.getHtmlOptions();
   const allLocsOption = '<option class="location-option" data-location-id="all">All Locations</option>';
@@ -455,8 +468,7 @@ function populateLocationSelects() {
   $("#location-select").html(newLocOption + standardLocOptions)
 }
 
-// Refreshes department select elements.
-// TODO Refresh beforehand?
+// Populates department select elements.
 function populateDepartmentSelects() {
   const standardDepOptions = Department.getHtmlOptions();
   const allDepsOption = '<option data-department-id="all">All Departments</option>';
@@ -550,7 +562,7 @@ function resetFilter() {
   filterResults();
 }
 
-// Resets Edit Departments Tab
+// Resets Edit Departments Tab fields.
 function resetEditDepartments() {
   $("#department-select").val("NEW DEPARTMENT");
   $("#department-name").val("");
@@ -559,7 +571,7 @@ function resetEditDepartments() {
   $("#delete-department").addClass("disabled");
 }
 
-// Resets Edit Locations Tab
+// Resets Edit Locations tab fields.
 function resetEditLocations() {
   $("#location-select").val("NEW LOCATION");
   $("#location-name").val("");
@@ -659,12 +671,14 @@ async function saveEditChanges() {
   await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
 
   await Personnel.populateSearchResults(true);
+  // TODO figure this out
   // WHY do I need these here? Do these not get set upon reselection?
   App.selectedPersonFirstName = fName.toLowerCase();
   App.selectedPersonLastName = lName.toLowerCase();
   App.selectedPersonEmail = email.toLowerCase();
   App.selectedPersonJobTitle = jobTitle.toLowerCase();
   App.selectedPersonDepartment = departmentName.toLowerCase();
+  filterResults();
   reselectPerson();
   checkEditTabDifferences();
 }
@@ -680,6 +694,7 @@ async function addPersonnel() {
   // TODO Add checks here!
   await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
   await Personnel.populateSearchResults(true);
+  filterResults();
   resetAddTab();
   reselectPerson();
 }
@@ -693,10 +708,17 @@ function resetAddTab() {
 
 // DELETE TAB - Delete selected personnel
 async function deletePersonnel() {
-  await Personnel.deletePersonnel(Personnel.currentlySelectedId);
-  // TODO Have a better way of doing this
-  await Personnel.populateSearchResults();
-  disableTabs();
+  const success = await Personnel.deletePersonnel(Personnel.currentlySelectedId);
+  if (success) {
+    const personIndex = Personnel.personnel.findIndex(person => person.id === Personnel.currentlySelectedId);
+    Personnel.personnel.splice(personIndex, 1);
+    Personnel.populateSearchResults(false);
+    filterResults();
+    disableTabs();
+    showMessage("Entry deleted!", "lime");
+  } else {
+    showMessage("Failed to delete entry!", "red");
+  }
 }
 
 // EDIT DEPARTMENTS - Department Select Update
@@ -746,6 +768,7 @@ async function saveDepartment() {
     }
     await Department.getAllDepartments();
     await Personnel.populateSearchResults();
+    filterResults();
     populateDepartmentSelects();
     reselectDepartment();
     checkEditDepartmentFields();
@@ -756,23 +779,17 @@ async function saveDepartment() {
 async function deleteDepartment() {
   const selectedDepartment = $("#department-select").val();
   if (selectedDepartment !== "NEW DEPARTMENT") {
-    const departmentId = Department.getDepartmentByName(selectedDepartment).id;
-    const inUseCount = checkIfDepartmentInUse(departmentId);
-    if (inUseCount <= 0) { 
-      const success = await Department.deleteDepartment(departmentId);
-      if (success) {
-        console.log("Successfully deleted department!");
-        // TODO if success don't update server just remove from dep array
-        await Department.getAllDepartments();
-        populateDepartmentSelects();
-      } else {
-        console.log("Failed to delete department!");
-      }
+    const success = await Department.deleteDepartment(Department.currentlySelectedId);
+    if (success) {
+      const depIndex = Department.departments.findIndex(dep => dep.id === Department.currentlySelectedId);
+      Department.departments.splice(depIndex, 1);
+      populateDepartmentSelects();
+      resetEditDepartments();
+      showMessage("Department deleted!", "lime");
     } else {
-      console.log(`Cannot delete department as ${inUseCount} personnel are in this department!`);
+      showMessage("Failed to delete department!", "red");
     }
   }
-  resetEditDepartments();
 }
 
 // EDIT LOCATIONS - Location Select Update
@@ -802,54 +819,41 @@ function checkDepartmentNames(newDepartmentName) {
 }
 
 // EDIT LOCATIONS - Save or Add Location
-// TODO Split into 2?
 async function saveLocation() {
   const locationNameSelect = $("#location-select").val();
   const newLocationName =  $("#location-name").val();
-  // TODO remove this block?
-  if (checkLocationNames(newLocationName)) {
-    console.log("A location with that name already exists!");
-    return;
-  }
   if (locationNameSelect === "NEW LOCATION") {
     await Location.addLocation(newLocationName);
     await Location.getAllLocations();
     Personnel.populateSearchResults(false);
+    reselectPerson();
+    filterResults();
     populateLocationSelects();
     resetEditLocations();
+    checkEditLocationFields();
   } else {
-    const locationId = Location.getLocationByName(locationNameSelect).id;
-    await Location.updateLocation(newLocationName, locationId);
+    await Location.updateLocation(newLocationName, Location.currentlySelectedId);
     await Location.getAllLocations();
     Personnel.populateSearchResults(false);
+    reselectPerson();
+    filterResults();
     populateLocationSelects();
     reselectLocation();
+    checkEditLocationFields();
   }
 }
 
 // EDIT LOCATIONS - Delete Location
 async function deleteLocation() {
-  const locationNameSelect = $("#location-select").val();
-  let locationId;
-  try {
-    locationId = Location.getLocationByName(locationNameSelect).id;
-    const inUseCount = checkIfLocationInUse(locationId);
-    if (inUseCount <= 0) { 
-      const success = await Location.deleteLocation(locationId);
-      if (success) {
-        console.log("Successfully deleted location!");
-        // TODO if success don't update server just remove from dep array
-        await Location.getAllLocations();
-        populateLocationSelects();
-        resetEditLocations();
-      } else {
-        console.log("Failed to delete location!");
-      }
-    } else {
-      console.log(`Cannot delete ${locationNameSelect} as it is used by ${inUseCount} departments!`);
-    }
-  } catch(e) {
-    return;
+  const success = await Location.deleteLocation(Location.currentlySelectedId);
+  if (success) {
+    const locIndex = Location.locations.findIndex(loc => loc.id === Location.currentlySelectedId);
+    Location.locations.splice(locIndex, 1);
+    populateLocationSelects();
+    resetEditLocations();
+    showMessage("Location deleted!", "lime");
+  } else {
+    showMessage("Failed to delete location!", "red");
   }
 }
 
@@ -934,7 +938,7 @@ function checkEditLocationFields() {
 }
 
 // Displays a message to the user for a few seconds
-function showMessage(msg, colour = snow) {
+function showMessage(msg, colour = "snow") {
   clearTimeout(App.timeout);
   $(".message-output").html(msg).css("color", colour);
   App.timeout = setTimeout(() => {
@@ -1077,5 +1081,7 @@ async function initSetup() {
   resetAddTab();
   resetEditDepartments();
   resetEditLocations();
+  filterResults();
 }
+
 initSetup();
