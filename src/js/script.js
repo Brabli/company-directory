@@ -920,6 +920,7 @@ $(".circle-button").on("click", () => {
   $(".circle-button").toggleClass("active-circle");
   $(".card-container").toggleClass("selected-results-container");
   $(".table-container").toggleClass("selected-results-container");
+  $(".table-header").toggleClass("selected-results-container");
 });
 
 // --- SEARCH TAB --- //

@@ -209,7 +209,6 @@ body {
 
 .active-circle {
   background-color: var(--selected-orange);
-  
 }
 
 .search-results-container {
@@ -220,7 +219,18 @@ body {
 .table-container {
   display: none;
   flex-direction: column;
-  margin-bottom: 2rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.table-header {
+  display: none;
+  color: white;
+  height: 1.5rem;
+  font-size: 0.7rem;
+  border-bottom: 1px solid black;
+  position: absolute;
+  width: 100%;
+  background-color: var(--backing-grey);
 }
 
 .person-row  {
@@ -228,7 +238,6 @@ body {
   display: flex;
   border-bottom: 1px solid black;
 }
-
     .even {
       background-color: var(--even-grey);
     }
@@ -239,12 +248,10 @@ body {
 
     .selected-row {
       background-color: var(--selected-orange);
-      /* color: white; */
     }
 
 .cell {
   padding: 0.2rem;
-  /* width: 25%; */
   display: flex;
   text-align: center;
   justify-content: center;
