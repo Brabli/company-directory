@@ -652,12 +652,18 @@ async function saveEditChanges() {
   const email = $("#edit-email").val();
   const jobTitle = $("#edit-job-title").val();
   const departmentName = ($("#edit-department").val());
+  App.selectedPersonFirstName = fName.toLowerCase();
+  App.selectedPersonLastName = lName.toLowerCase();
+  App.selectedPersonEmail = email.toLowerCase();
+  App.selectedPersonJobTitle = jobTitle.toLowerCase();
+  App.selectedPersonDepartment = departmentName.toLowerCase();
   const departmentId = Department.getDepartmentByName(departmentName).id;
   // TODO Add checks here!
   await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
   await Personnel.populateSearchResults(true);
 
   reselectPerson();
+  checkEditTabDifferences();
 }
 
 // ADD TAB - Add new personnel
