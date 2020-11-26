@@ -95,8 +95,6 @@ body {
 .search-menu {
   height: 8rem;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
 }
     .filter-container {
       width: 90%;
@@ -119,6 +117,7 @@ body {
     }
 
     #reset-filter-btn {
+      margin-top: 0.7rem;
       height: 1.5rem;
     }
 
@@ -180,7 +179,6 @@ body {
 
 .selected-menu {
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
