@@ -114,7 +114,7 @@ class Personnel {
       $(".table-container").append(`
       <div class="person-row even" data-id="${person.id}">
         <div class="cell cell-name b-right">${person.firstName} ${person.lastName}</div>
-        <div class="cell cell-job-title b-right">${person.jobTitle}Supervisor Manager</div>
+        <div class="cell cell-job-title b-right">${person.jobTitle}</div>
         <div class="cell cell-department b-right">${department.name}</div>
         <div class="cell cell-location">${location.name}</div>
       </div>`);
@@ -140,20 +140,7 @@ class Personnel {
   }
 }
 
-// This class acts as a global var container.
-// TODO move these to appropriate clases; no need for an App class
-class App {
-  static currentlySelectedTab = null;
-  // Used when enabling or disabling EDIT tab save changes button.
-  static selectedPersonFirstName = null;
-  static selectedPersonLastName = null;
-  static selectedPersonEmail = null;
-  static selectedPersonJobTitle = null;
-  static selectedPersonDepartment = null;
-  // Used in Edit Departments Tab
-  static selectedDepCurrentName = null;
-  static selectedDepCurrentLoc = null;
-}
+
 
 /* DEPARTMENT CLASS */
 /*~~~~~~~~~~~~~~~~~~*/
@@ -249,13 +236,28 @@ class Department {
 
 
 
+// This class acts as a global var container.
+// TODO move these to appropriate clases; no need for an App class
+class App {
+  static currentlySelectedTab = null;
+  // Used when enabling or disabling EDIT tab save changes button.
+  static selectedPersonFirstName = null;
+  static selectedPersonLastName = null;
+  static selectedPersonEmail = null;
+  static selectedPersonJobTitle = null;
+  static selectedPersonDepartment = null;
+  // Used in Edit Departments Tab
+  static selectedDepCurrentName = null;
+  static selectedDepCurrentLoc = null;
+}
+
 /* LOCATION CLASS */
 /*~~~~~~~~~~~~~~~~~~*/
 class Location {
 
   static locations = [];
-  static currentlySelectedLocId;
-  static currentltSelectedLocName;
+  static currentlySelectedId = null;
+  static currentlySelectedName = null;
 
   static async getAllLocations() {
     const res = await fetch("php/getAllLocations.php");
@@ -584,20 +586,17 @@ function selectPerson(personnelId) {
   App.selectedPersonEmail = personData.email.toLowerCase();
   App.selectedPersonJobTitle = personData.jobTitle.toLowerCase();
   App.selectedPersonDepartment = personDepartment.toLowerCase();
-  checkEditDifferences();
+  checkEditTabDifferences();
 }
 
 // Checks to see if an edit has been made before enabling the save button.
-function checkEditDifferences() {
+function checkEditTabDifferences() {
   setTimeout(() => {
-    if (
-      $("#edit-first-name").val().toLowerCase() === App.selectedPersonFirstName &&
+    if ($("#edit-first-name").val().toLowerCase() === App.selectedPersonFirstName &&
       $("#edit-last-name").val().toLowerCase() === App.selectedPersonLastName &&
       $("#edit-email").val().toLowerCase() === App.selectedPersonEmail &&
       $("#edit-job-title").val().toLowerCase() === App.selectedPersonJobTitle &&
-      $("#edit-department").val().toLowerCase() === App.selectedPersonDepartment
-    ) 
-    {
+      $("#edit-department").val().toLowerCase() === App.selectedPersonDepartment) {
       $("#save-changes").addClass("disabled");
     } else {
       $("#save-changes").removeClass("disabled");
@@ -608,11 +607,9 @@ function checkEditDifferences() {
 // Resets ADD Tab input fields.
 function checkAddTabRequiredFields() {
   setTimeout(() => {
-    if (
-    $("#add-first-name").val() !== "" &&
-    $("#add-last-name").val() !== "" &&
-    $("#add-department").val() !== null) 
-    {
+    if ($("#add-first-name").val() !== "" &&
+      $("#add-last-name").val() !== "" &&
+      $("#add-department").val() !== null) {
       $("#add-entry").removeClass("disabled");
     } else {
       $("#add-entry").addClass("disabled");
@@ -701,7 +698,6 @@ function updateEditDepartmentFields() {
     $("#department-name").val("");
     $("#location-change").val("");
   } else {
-    
     const locationId = Department.getDepartmentByName(departmentName).locationID;
     const locationName = Location.getLocationById(locationId).name;
     $("#location-change").val(locationName);
@@ -722,7 +718,6 @@ async function saveDepartment() {
   // Add new department
   if (selectedDepartment === "NEW DEPARTMENT") {
     const success = await Department.addDepartment(newDepartmentName, locationId);
-    console.log(success);
     if (success) {
       console.log("Successfully added new Department!");
     } else {
@@ -743,7 +738,7 @@ async function saveDepartment() {
     await Department.getAllDepartments();
     await Personnel.populateSearchResults();
     populateDepartmentSelects();
-    reselectDepartment(departmentId);
+    reselectDepartment();
     checkEditDepartmentFields();
   }
 }
@@ -775,15 +770,19 @@ async function deleteDepartment() {
 function updateEditLocationFields() {
   const locationName = $("#location-select").val();
   if (locationName === "NEW LOCATION") {
+    Location.currentlySelectedId = null;
     $("#location-name").val("");
   } else {
     $("#location-name").val(locationName);
+    Location.currentlySelectedId = Location.getLocationByName(locationName).id;
   }
 }
 
 // EDIT LOCATIONS - Tests to make sure new location names are valid.
 function checkLocationNames(newLocationName) {
-  return Location.locations.find(loc => loc.name.toLowerCase() === newLocationName.toLowerCase());
+  newLocationName = newLocationName.toLowerCase();
+  if (newLocationName === "new location" || newLocationName === "") return true;
+  return Location.locations.find(loc => loc.name.toLowerCase() === newLocationName);
 }
 
 // Returns true on existing / invalid department name.
@@ -794,26 +793,28 @@ function checkDepartmentNames(newDepartmentName) {
 }
 
 // EDIT LOCATIONS - Save or Add Location
+// TODO Split into 2?
 async function saveLocation() {
   const locationNameSelect = $("#location-select").val();
   const newLocationName =  $("#location-name").val();
-
+  // TODO remove this block?
   if (checkLocationNames(newLocationName)) {
     console.log("A location with that name already exists!");
     return;
   }
-
   if (locationNameSelect === "NEW LOCATION") {
     await Location.addLocation(newLocationName);
     await Location.getAllLocations();
     Personnel.populateSearchResults(false);
     populateLocationSelects();
+    resetEditLocations();
   } else {
     const locationId = Location.getLocationByName(locationNameSelect).id;
     await Location.updateLocation(newLocationName, locationId);
     await Location.getAllLocations();
     Personnel.populateSearchResults(false);
     populateLocationSelects();
+    reselectLocation();
   }
 }
 
@@ -831,6 +832,7 @@ async function deleteLocation() {
         // TODO if success don't update server just remove from dep array
         await Location.getAllLocations();
         populateLocationSelects();
+        resetEditLocations();
       } else {
         console.log("Failed to delete location!");
       }
@@ -843,14 +845,21 @@ async function deleteLocation() {
 }
 
 // Reselects last Department - Used after saving changes to an existing department.
-function reselectDepartment(departmentId) {
-  const departmentName = Department.getDepartmentById(departmentId).name;
-  console.log(departmentName);
+function reselectDepartment() {
+  const departmentName = Department.getDepartmentById(Department.currentlySelectedId).name;
   $("#department-select").val(departmentName);
   updateEditDepartmentFields();
 }
 
-// TODO on Dep Edit save reselct edited dep
+// Reselects last location
+function reselectLocation() {
+  const locationName = Location.getLocationById(Location.currentlySelectedId).name;
+  $("#location-select").val(locationName);
+  updateEditLocationFields();
+}
+
+// TODO on Dep Edit save - reselct edited dep
+// TODO Split into two functions?
 function checkEditDepartmentFields() {
   setTimeout(() => {
     const selectedDepartment = $("#department-select").val();
@@ -893,79 +902,9 @@ $(".tab").on("click", e => {
   changeMainTab(e);
 });
 
-// SEARCH TAB - Filter listneners
-$("#name-filter").on("keydown", () => {
-  filterResults();
-});
-
-$("#department-filter").on("change", () => {
-  filterResults();
-});
-
-$("#location-filter").on("change", () => {
-  filterResults();
-});
-
-// SEARCH TAB -  Reset Filter options
-$("#reset-filter-btn").on("click", () => {
-  resetFilter();
-});
-
-// EDIT TAB - Save Changes Button
-$("#save-changes").on("click", e => {
-  if ($(e.currentTarget).hasClass("disabled")) return;
-  saveEditChanges();
-})
-
-// ADD TAB - Add Entry Button
-$("#add-entry").on("click", e => {
-  if ($(e.currentTarget).hasClass("disabled")) return;
-  addPersonnel();
-})
-
-// DELETE TAB - Delete Button
-$("#delete-entry").on("click", e => {
-  if ($(e.currentTarget).hasClass("disabled")) return;
-  deletePersonnel();
-});
-
 // Bottom Tab change listener
 $(".bottom-tab").on("click", e => {
   changeBottomTab(e);
-});
-
-// EDIT DEPARTMENTS - Department Select
-$("#department-select").on("change", () => {
-  updateEditDepartmentFields();
-});
-
-// EDIT DEPARTMENTS - Save / Add new department button
-$("#save-department").on("click", e => {
-  if ($(e.currentTarget).hasClass("disabled")) return;
-  saveDepartment();
-});
-
-// EDIT DEPARTMENTS - Delete department button
-$("#delete-department").on("click", e => {
-  if ($(e.currentTarget).hasClass("disabled")) return;
-  deleteDepartment();
-});
-
-// EDIT LOCATIONS - Location Select
-$("#location-select").on("change", () => {
-  updateEditLocationFields();
-});
-
-// EDIT LOCATIONS - Save Location button
-$("#save-location").on("click", e => {
-  if ($(e.currentTarget).hasClass("disabled")) return;
-  saveLocation();
-});
-
-// EDIT LOCATIONS - Delete Location Button
-$("#delete-location").on("click", e => {
-  if ($(e.currentTarget).hasClass("disabled")) return;
-  deleteLocation();
 });
 
 // Row View Toggle
@@ -975,35 +914,137 @@ $(".circle-button").on("click", () => {
   $(".table-container").toggleClass("selected-results-container");
 });
 
-// These enable SAVE CHANGES button in EDIT tab if the contents is different to the current data.
+// --- SEARCH TAB --- //
+// Filter listneners
+$("#name-filter").on("keydown", () => {
+  filterResults();
+});
+// Filter listneners
+$("#department-filter").on("change", () => {
+  filterResults();
+});
+// Filter listneners
+$("#location-filter").on("change", () => {
+  filterResults();
+});
+// Reset Filter button
+$("#reset-filter-btn").on("click", () => {
+  resetFilter();
+});
+
+// --- EDIT TAB --- //
+// Save Changes Button
+$("#save-changes").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
+  saveEditChanges();
+});
+// Edit tab input checks
 $(".edit-tab-text-input").on("keydown", () => {
-  checkEditDifferences();
+  checkEditTabDifferences();
 });
-
+// Edit tab input checks
 $(".edit-tab-select-input").on("change", () => {
-  checkEditDifferences();
+  checkEditTabDifferences();
 });
 
+// --- ADD TAB -- //
+// Create Entry Button
+$("#add-entry").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
+  addPersonnel();
+});
+// Add tab input checks
 $(".add-tab-text-input").on("keydown", () => {
   checkAddTabRequiredFields();
 });
-
+// Add tab input checks
 $(".add-tab-select-input").on("change", () => {
   checkAddTabRequiredFields();
 });
 
-$("#department-select").on("change", () => {
-  checkEditDepartmentFields();
+// --- DELETE TAB -- //
+// Delete Button
+$("#delete-entry").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
+  deletePersonnel();
 });
 
+// --- EDIT DEPARTMENTS --- //
+// Department Select
+$("#department-select").on("change", () => {
+  updateEditDepartmentFields();
+  checkEditDepartmentFields();
+});
+// Edit Department input listeners
 $("#department-name").on("keydown", () => {
   checkEditDepartmentFields();
 });
-
+// Edit Department input listeners
 $("#location-change").on("change", () => {
   checkEditDepartmentFields();
 });
+// Save / Add new department button
+$("#save-department").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
+  saveDepartment();
+});
+// Delete department button
+$("#delete-department").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
+  deleteDepartment();
+});
 
+// --- EDIT LOCATIONS --//
+// Location Select
+$("#location-select").on("change", () => {
+  updateEditLocationFields();
+  checkEditLocationFields();
+});
+
+$("#location-name").on("keydown", () => {
+  checkEditLocationFields();
+});
+
+// Save Location button
+$("#save-location").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
+  saveLocation();
+});
+// Delete Location Button
+$("#delete-location").on("click", e => {
+  if ($(e.currentTarget).hasClass("disabled")) return;
+  deleteLocation();
+});
+
+function checkEditLocationFields() {
+  setTimeout(() => {
+    const selectedLocation = $("#location-select").val();
+    const locationName = $("#location-name").val();
+    if (selectedLocation === "NEW LOCATION") {
+      if (checkLocationNames(locationName)) {
+        $("#save-location").addClass("disabled");
+        $("#delete-location").addClass("disabled");
+      } else {
+        $("#save-location").removeClass("disabled");
+      }
+    } else {
+      const inUseCount = checkIfLocationInUse(Location.currentlySelectedId);
+      console.log(Location.currentlySelectedId);
+      if (inUseCount <= 0) {
+        $("#delete-location").removeClass("disabled");
+      } else {
+        $("#delete-location").addClass("disabled");
+      }
+      if (checkLocationNames(locationName)) {
+        $("#save-location").addClass("disabled");
+      } else {
+        $("#save-location").removeClass("disabled");
+      }
+      console.log(inUseCount);
+
+    }
+  }, 0);
+}
 
 //~~~~~~ INIT SETUP ~~~~~~~//
 async function initSetup() { 
