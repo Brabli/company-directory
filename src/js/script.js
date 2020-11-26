@@ -619,7 +619,7 @@ function checkAddTabRequiredFields() {
 
 // Reselects the last selected peron.
 function reselectPerson() {
-  if (Personnel.currentlySelectedId ?? true) return;
+  if (Personnel.currentlySelectedId === null) return;
   selectPerson(Personnel.currentlySelectedId);
 }
 
