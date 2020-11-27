@@ -215,14 +215,14 @@ body {
 }
 
 .search-results-container {
-  overflow: auto;
+  overflow: overlay;
   background-color: var(--backing-grey);
 }
 
 .table-container {
   display: none;
   flex-direction: column;
-  margin: 1.5rem 0 2rem;
+  margin-bottom: 2rem;
 }
 
 .table-header {
@@ -231,7 +231,6 @@ body {
   height: 1.5rem;
   font-size: 0.7rem;
   border-bottom: 1px solid black;
-  position: absolute;
   width: 100%;
   background-color: var(--backing-grey);
 }
