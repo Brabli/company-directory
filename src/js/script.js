@@ -379,41 +379,43 @@ class App {
 function filterResults() {
   // setTimeout() is required to prevent a bug with name search box.
   setTimeout(() => {
-
+    // Filter values
     const filterNameString = $("#name-filter").val().toLowerCase().trim();
     const filterDepString = $("#department-filter").val();
     const filterLocString = $("#location-filter").val();
-    
+
     // Loop over all results.
     $(".person-card").each(function() {
-      // Get card values.
-      const cardDepartment = $(this).find(".card-department").html();
-      const cardLocation = $(this).find(".card-location").html();
-      const cardName = $(this).find(".card-name").html();
-      const personnelId = $(this).data("id");
-      const $row = getRowById(personnelId)
+      const $card = $(this);
+      const $row = getRowById($card.data("id"));
 
-      $(".table-container").find()
-      // Test each value against the appropriate filter.
+      const cardDepartment = $card.find(".card-department").html();
+      const cardLocation = $card.find(".card-location").html();
+      const cardName = $card.find(".card-name").html();
+
       const depFilter = testDepartment(cardDepartment, filterDepString);
       if (depFilter) {
         $row.css("display", "none");
-        $(this).css("display", "none");
-        return; };
+        $card.css("display", "none");
+        return;
+      };
+
       const locFilter = testLocation(cardLocation, filterLocString);
       if (locFilter) {
         $row .css("display", "none");
-        $(this).css("display", "none");
-        return; };
+        $card.css("display", "none");
+        return;
+      };
+
       const nameFilter = testName(cardName, filterNameString);
       if (nameFilter) { 
         $row.css("display", "none");
-        $(this).css("display", "none");
+        $card.css("display", "none");
         return;
       };
       // If card does not get flagged by the filter, set display to flex.
       $row.css("display", "flex");
-      $(this).css("display", "flex");
+      $card.css("display", "flex");
     });
     // Refresh counter after filtering,
     colourRows();
