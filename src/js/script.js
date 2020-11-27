@@ -692,6 +692,8 @@ async function saveEditChanges() {
     filterResults();
     reselectPerson();
     checkEditTabDifferences();
+    // These two prevent the delete button in EDIT LOCATION / DEPARTMENT tabs from staying lit up if a previously unused dep
+    checkEditDepartmentFields();
   } else {
     showMessage("Failed to save changes!", "red");
   }
@@ -712,6 +714,8 @@ async function addPersonnel() {
     await Personnel.populateSearchResults(true);
     filterResults();
     reselectPerson();
+    // These two turn off the delete button in edit dep / loc tabs.
+    checkEditDepartmentFields();
   } else {
     showMessage("Failed to add entry", "red");
   }
@@ -726,6 +730,7 @@ async function deletePersonnel() {
     Personnel.populateSearchResults(false);
     filterResults();
     disableTabs();
+    checkEditDepartmentFields();
     showMessage("Entry deleted!", "lime");
   } else {
     showMessage("Failed to delete entry", "red");
@@ -764,6 +769,7 @@ async function saveDepartment() {
       await Department.getAllDepartments();
       populateDepartmentSelects();
       resetEditDepartments();
+      checkEditLocationFields();
     } else {
       showMessage("Failed to add department");
     }
@@ -776,7 +782,10 @@ async function saveDepartment() {
       populateDepartmentSelects();
       reselectDepartment();
       checkEditDepartmentFields();
-      await Personnel.populateSearchResults(true);
+      // Prevents delete button in EDIT LOCATIONS staying active when it shouldn't be.
+      checkEditLocationFields();
+      Personnel.populateSearchResults(false);
+      reselectPerson();
       filterResults();
     } else {
       showMessage("Failed to save changes", "red");
@@ -794,6 +803,7 @@ async function deleteDepartment() {
       Department.departments.splice(depIndex, 1);
       populateDepartmentSelects();
       resetEditDepartments();
+      checkEditLocationFields();
       showMessage("Department deleted!", "lime");
     } else {
       showMessage("Failed to delete department", "red");
