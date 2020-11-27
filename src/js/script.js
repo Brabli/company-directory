@@ -623,10 +623,10 @@ function selectPerson(personnelId) {
 // Checks to see if an edit has been made before enabling the save button.
 function checkEditTabDifferences() {
   setTimeout(() => {
-    if ($("#edit-first-name").val().toLowerCase() === App.selectedPersonFirstName &&
-      $("#edit-last-name").val().toLowerCase() === App.selectedPersonLastName &&
-      $("#edit-email").val().toLowerCase() === App.selectedPersonEmail &&
-      $("#edit-job-title").val().toLowerCase() === App.selectedPersonJobTitle &&
+    if ($("#edit-first-name").val().toLowerCase().trim() === App.selectedPersonFirstName &&
+      $("#edit-last-name").val().toLowerCase().trim() === App.selectedPersonLastName &&
+      $("#edit-email").val().toLowerCase().trim() === App.selectedPersonEmail &&
+      $("#edit-job-title").val().toLowerCase().trim() === App.selectedPersonJobTitle &&
       $("#edit-department").val().toLowerCase() === App.selectedPersonDepartment) {
       $("#save-changes").addClass("disabled");
     } else {
@@ -638,8 +638,8 @@ function checkEditTabDifferences() {
 // Resets ADD Tab input fields.
 function checkAddTabRequiredFields() {
   setTimeout(() => {
-    if ($("#add-first-name").val() !== "" &&
-      $("#add-last-name").val() !== "" &&
+    if ($("#add-first-name").val().trim() !== "" &&
+      $("#add-last-name").val().trim() !== "" &&
       $("#add-department").val() !== null) {
       $("#add-entry").removeClass("disabled");
     } else {
@@ -678,11 +678,11 @@ function deselectPerson() {
 // EDIT TAB - Save Changes
 async function saveEditChanges() {
   const id = Personnel.currentlySelectedId;
-  const fName = $("#edit-first-name").val();
-  const lName = $("#edit-last-name").val();
-  const email = $("#edit-email").val();
-  const jobTitle = $("#edit-job-title").val();
-  const departmentName = ($("#edit-department").val());
+  const fName = $("#edit-first-name").val().trim();
+  const lName = $("#edit-last-name").val().trim();
+  const email = $("#edit-email").val().trim();
+  const jobTitle = $("#edit-job-title").val().trim();
+  const departmentName = $("#edit-department").val();
   const departmentId = Department.getDepartmentByName(departmentName).id;
   // TODO Add checks here!
   const success = await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
@@ -701,11 +701,11 @@ async function saveEditChanges() {
 
 // ADD TAB - Add new personnel
 async function addPersonnel() {
-  const fName = $("#add-first-name").val();
-  const lName = $("#add-last-name").val();
-  const email = $("#add-email").val();
-  const jobTitle = $("#add-job-title").val();
-  const departmentname = ($("#add-department").val());
+  const fName = $("#add-first-name").val().trim();
+  const lName = $("#add-last-name").val().trim();
+  const email = $("#add-email").val().trim();
+  const jobTitle = $("#add-job-title").val().trim();
+  const departmentname = $("#add-department").val();
   const departmentId = Department.getDepartmentByName(departmentname).id;
   const success = await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
   if (success) {
@@ -758,7 +758,7 @@ function updateEditDepartmentFields() {
 // EDIT DEPARTMENTS - Save or Add Department
 async function saveDepartment() {
   const selectedDepartment = $("#department-select").val();
-  const newDepName = $("#department-name").val();
+  const newDepName = $("#department-name").val().trim();
   const locationName = $("#location-change").val();
   const locationId = Location.getLocationByName(locationName).id;
   // Add new department
@@ -840,7 +840,7 @@ function checkDepartmentNames(newDepartmentName) {
 // EDIT LOCATIONS - Save or Add Location
 async function saveLocation() {
   const locationNameSelect = $("#location-select").val();
-  const newLocationName =  $("#location-name").val();
+  const newLocationName =  $("#location-name").val().trim();
   // Add new location
   if (locationNameSelect === "NEW LOCATION") {
     const success = await Location.addLocation(newLocationName);
@@ -939,7 +939,7 @@ function checkEditDepartmentFields() {
 function checkEditLocationFields() {
   setTimeout(() => {
     const selectedLocation = $("#location-select").val();
-    const locationName = $("#location-name").val();
+    const locationName = $("#location-name").val().trim();
     // Add New Location
     if (selectedLocation === "NEW LOCATION") {
       if (checkLocationNames(locationName)) {
