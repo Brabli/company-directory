@@ -683,26 +683,21 @@ async function saveEditChanges() {
   const email = $("#edit-email").val();
   const jobTitle = $("#edit-job-title").val();
   const departmentName = ($("#edit-department").val());
-
   const departmentId = Department.getDepartmentByName(departmentName).id;
   // TODO Add checks here!
-  await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
-
-  await Personnel.populateSearchResults(true);
-  // TODO figure this out
-  // WHY do I need these here? Do these not get set upon reselection?
-  App.selectedPersonFirstName = fName.toLowerCase();
-  App.selectedPersonLastName = lName.toLowerCase();
-  App.selectedPersonEmail = email.toLowerCase();
-  App.selectedPersonJobTitle = jobTitle.toLowerCase();
-  App.selectedPersonDepartment = departmentName.toLowerCase();
-  filterResults();
-  reselectPerson();
-  checkEditTabDifferences();
+  const success = await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
+  if (success) {
+    showMessage("Changes saved!", "lime");
+    await Personnel.populateSearchResults(true);
+    filterResults();
+    reselectPerson();
+    checkEditTabDifferences();
+  } else {
+    showMessage("Failed to save changes!", "red");
+  }
 }
 
 // ADD TAB - Add new personnel
-// TODO Add checks here!
 async function addPersonnel() {
   const fName = $("#add-first-name").val();
   const lName = $("#add-last-name").val();
@@ -781,7 +776,7 @@ async function saveDepartment() {
       populateDepartmentSelects();
       reselectDepartment();
       checkEditDepartmentFields();
-      await Personnel.populateSearchResults();
+      await Personnel.populateSearchResults(true);
       filterResults();
     } else {
       showMessage("Failed to save changes", "red");
