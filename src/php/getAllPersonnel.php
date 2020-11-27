@@ -21,7 +21,7 @@
 		exit;
 	}	
 
-	$query = 'SELECT id, firstName, lastName, jobTitle, email, departmentID FROM personnel';
+	$query = 'SELECT id, firstName, lastName, jobTitle, email, departmentID FROM personnel ORDER BY firstName ASC';
 
 	$result = mysqli_query($conn, $query);
 	
