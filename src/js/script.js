@@ -7,36 +7,44 @@ class Personnel {
 
   // Return array of all personnel rows
   static async getAllPersonnel() {
-    const res = await fetch("php/getAllPersonnel.php");
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      Personnel.personnel = resJson.data;
-      console.log("Successfully retrieved personnel!");
-      return true;
-    } else {
-      console.log("Failed to retrieve personnel!");
+    try {
+      const res = await fetch("php/getAllPersonnel.php");
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        Personnel.personnel = resJson.data;
+        console.log("Successfully retrieved personnel!");
+        return true;
+      } else {
+        console.log("Failed to retrieve personnel!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
 
   // Add personnal row
   static async addPersonnel(firstName, lastName, jobTitle, email, departmentId) {
-    const res = await fetch("php/addPersonnel.php", {
-      method: "POST",
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        jobTitle,
-        email,
-        departmentId
-      })
-    });
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      console.log("Successfull add!");
-      return true;
-    } else {
-      console.log("Failed to add!");
+    try {
+      const res = await fetch("php/addPersonnel.php", {
+        method: "POST",
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          jobTitle,
+          email,
+          departmentId
+        })
+      });
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        console.log("Successfull add!");
+        return true;
+      } else {
+        console.log("Failed to add!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
@@ -170,19 +178,23 @@ class Department {
   }
 
   static async addDepartment(name, locationId) {
-    const res = await fetch("php/addDepartment.php", {
-      method: "POST",
-      body: JSON.stringify({
-        name,
-        locationId
-      })
-    });
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully added department!");
-      return true;
-    } else {
-      console.log("Failed to add department!");
+    try {
+      const res = await fetch("php/addDepartment.php", {
+        method: "POST",
+        body: JSON.stringify({
+          name,
+          locationId
+        })
+      });
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        console.log("Successfully added department!");
+        return true;
+      } else {
+        console.log("Failed to add department!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
@@ -385,7 +397,7 @@ function filterResults() {
       // Test each value against the appropriate filter.
       const depFilter = testDepartment(cardDepartment, filterDepString);
       if (depFilter) {
-        $row .css("display", "none");
+        $row.css("display", "none");
         $(this).css("display", "none");
         return; };
       const locFilter = testLocation(cardLocation, filterLocString);
@@ -395,7 +407,7 @@ function filterResults() {
         return; };
       const nameFilter = testName(cardName, filterNameString);
       if (nameFilter) { 
-        $row .css("display", "none");
+        $row.css("display", "none");
         $(this).css("display", "none");
         return;
       };
@@ -579,6 +591,12 @@ function resetEditLocations() {
   $("#delete-location").addClass("disabled");
 }
 
+// Reset Add Tab Fields
+function resetAddTab() {
+  $(".add-tab-input").val("");
+  $("#add-entry").addClass("disabled");
+}
+
 // Selects Person Card and Row and fills out EDIT tab's fields.
 function selectPerson(personnelId) {
   const $card = getCardById(personnelId);
@@ -684,6 +702,7 @@ async function saveEditChanges() {
 }
 
 // ADD TAB - Add new personnel
+// TODO Add checks here!
 async function addPersonnel() {
   const fName = $("#add-first-name").val();
   const lName = $("#add-last-name").val();
@@ -691,20 +710,17 @@ async function addPersonnel() {
   const jobTitle = $("#add-job-title").val();
   const departmentname = ($("#add-department").val());
   const departmentId = Department.getDepartmentByName(departmentname).id;
-  // TODO Add checks here!
-  await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
-  await Personnel.populateSearchResults(true);
-  filterResults();
-  resetAddTab();
-  reselectPerson();
+  const success = await Personnel.addPersonnel(fName, lName, jobTitle, email, departmentId);
+  if (success) {
+    showMessage("Added new entry!", "lime");
+    resetAddTab();
+    await Personnel.populateSearchResults(true);
+    filterResults();
+    reselectPerson();
+  } else {
+    showMessage("Failed to add entry", "red");
+  }
 }
-
-// ADD TAB - Reset Fields
-function resetAddTab() {
-  $(".add-tab-input").val("");
-  $("#add-entry").addClass("disabled");
-}
-
 
 // DELETE TAB - Delete selected personnel
 async function deletePersonnel() {
@@ -717,7 +733,7 @@ async function deletePersonnel() {
     disableTabs();
     showMessage("Entry deleted!", "lime");
   } else {
-    showMessage("Failed to delete entry!", "red");
+    showMessage("Failed to delete entry", "red");
   }
 }
 
@@ -739,39 +755,37 @@ function updateEditDepartmentFields() {
   }
 }
 
-// TODO Split into two functions?
 // EDIT DEPARTMENTS - Save or Add Department
 async function saveDepartment() {
   const selectedDepartment = $("#department-select").val();
-  const newDepartmentName = $("#department-name").val();
+  const newDepName = $("#department-name").val();
   const locationName = $("#location-change").val();
   const locationId = Location.getLocationByName(locationName).id;
   // Add new department
   if (selectedDepartment === "NEW DEPARTMENT") {
-    const success = await Department.addDepartment(newDepartmentName, locationId);
+    const success = await Department.addDepartment(newDepName, locationId);
     if (success) {
-      console.log("Successfully added new Department!");
+      showMessage("Added new department!", "lime");
+      await Department.getAllDepartments();
+      populateDepartmentSelects();
+      resetEditDepartments();
     } else {
-      console.log("Failed to add new Department!");
+      showMessage("Failed to add department");
     }
-    await Department.getAllDepartments();
-    populateDepartmentSelects();
-    resetEditDepartments();
   // Save changes to current department
   } else {
-    const departmentId = Department.getDepartmentByName(selectedDepartment).id;
-    const success = await Department.updateDepartment(newDepartmentName, locationId, departmentId);
+    const success = await Department.updateDepartment(newDepName, locationId, Department.currentlySelectedId);
     if (success) {
-      console.log("Saved department!");
+      showMessage("Saved changes!", "lime");
+      await Department.getAllDepartments(); //TODO Edit in array?
+      populateDepartmentSelects();
+      reselectDepartment();
+      checkEditDepartmentFields();
+      await Personnel.populateSearchResults();
+      filterResults();
     } else {
-      console.log("Failed to save department!");
+      showMessage("Failed to save changes", "red");
     }
-    await Department.getAllDepartments();
-    await Personnel.populateSearchResults();
-    filterResults();
-    populateDepartmentSelects();
-    reselectDepartment();
-    checkEditDepartmentFields();
   }
 }
 
@@ -787,7 +801,7 @@ async function deleteDepartment() {
       resetEditDepartments();
       showMessage("Department deleted!", "lime");
     } else {
-      showMessage("Failed to delete department!", "red");
+      showMessage("Failed to delete department", "red");
     }
   }
 }
@@ -822,24 +836,36 @@ function checkDepartmentNames(newDepartmentName) {
 async function saveLocation() {
   const locationNameSelect = $("#location-select").val();
   const newLocationName =  $("#location-name").val();
+  // Add new location
   if (locationNameSelect === "NEW LOCATION") {
-    await Location.addLocation(newLocationName);
-    await Location.getAllLocations();
-    Personnel.populateSearchResults(false);
-    reselectPerson();
-    filterResults();
-    populateLocationSelects();
-    resetEditLocations();
-    checkEditLocationFields();
+    const success = await Location.addLocation(newLocationName);
+    if (success) {
+      showMessage("Added location!", "lime");
+      await Location.getAllLocations();
+      populateLocationSelects();
+      resetEditLocations();
+      checkEditLocationFields();
+      Personnel.populateSearchResults(false);
+      reselectPerson();
+      filterResults();
+    } else {
+      showMessage("Failed to add location", "red");
+    }
+    // Save changes to location
   } else {
-    await Location.updateLocation(newLocationName, Location.currentlySelectedId);
-    await Location.getAllLocations();
-    Personnel.populateSearchResults(false);
-    reselectPerson();
-    filterResults();
-    populateLocationSelects();
-    reselectLocation();
-    checkEditLocationFields();
+    const success = await Location.updateLocation(newLocationName, Location.currentlySelectedId);
+    if (success) {
+      showMessage("Saved changes!", "lime");
+      await Location.getAllLocations(); // TODO just edit original entry?
+      populateLocationSelects();
+      reselectLocation();
+      checkEditLocationFields();
+      Personnel.populateSearchResults(false);
+      reselectPerson();
+      filterResults();
+    } else {
+      showMessage("Failed to save changes!", "red");
+    }
   }
 }
 
@@ -871,16 +897,15 @@ function reselectLocation() {
   updateEditLocationFields();
 }
 
-// TODO on Dep Edit save - reselct edited dep
-// TODO Split into two functions?
+// Checks edit department fields
 function checkEditDepartmentFields() {
   setTimeout(() => {
     const selectedDepartment = $("#department-select").val();
     const newDepName = $("#department-name").val().trim();
-    const depLocation = $("#location-change").val();
+    const newDepLocation = $("#location-change").val();
     // Add New Department
     if (selectedDepartment === "NEW DEPARTMENT") {
-      if (checkDepartmentNames(newDepName) || depLocation === null) {
+      if (checkDepartmentNames(newDepName) || newDepLocation === null) {
         $("#save-department").addClass("disabled");
         $("#delete-department").addClass("disabled");
       } else {
@@ -895,13 +920,11 @@ function checkEditDepartmentFields() {
       } else {
         $("#delete-department").addClass("disabled");
       }
-      
-      if ((App.selectedDepCurrentName.toLowerCase() === newDepName.toLowerCase() &&
-      App.selectedDepCurrentLoc === depLocation) ||
-      newDepName === "") {
-        $("#save-department").addClass("disabled");
-      } else {
+      if ((App.selectedDepCurrentLoc !== newDepLocation && newDepName.toLowerCase() === selectedDepartment.toLowerCase()) || !checkDepartmentNames(newDepName)) {
+        
         $("#save-department").removeClass("disabled");
+      } else {
+        $("#save-department").addClass("disabled");
       }
     }
   }, 0);
