@@ -13,6 +13,7 @@ html {
   --even-grey: rgb(229, 229, 229);
   --odd-grey: rgb(208, 208, 208);
   --active-green: rgb(28, 113, 28);
+  --max-menu-width: 30rem;
 }
 
 .alt-grey {
@@ -94,9 +95,11 @@ body {
 
 .search-menu {
   height: 8rem;
+  
   flex-direction: column;
 }
     .filter-container {
+      max-width: var(--max-menu-width);
       width: 90%;
       display: flex;
       flex-direction: row;
@@ -109,11 +112,12 @@ body {
       padding-right: 1rem;
       padding-bottom: 0.1rem;
       border-bottom: 1px dotted black;
+      flex-grow: 1;
     }
 
     .filter-container select, .filter-container input {
       height: 1.2rem;
-      width: 100%;
+      width: 60%;
     }
 
     #reset-filter-btn {
@@ -121,19 +125,19 @@ body {
       height: 1.5rem;
     }
 
-
 .edit-menu, .add-menu {
   display: none;
   height: 12rem;
+  
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
 }
     .input-container {
+      max-width: var(--max-menu-width);
       width: 90%;
       display: flex;
       flex-direction: row;
-      
       align-items: center;
       padding-top: 0.5rem;
     }
@@ -142,7 +146,6 @@ body {
       flex-grow: 1;
       text-transform: uppercase;
       font-size: 0.85rem;
-
       padding-bottom: 0.1rem;
       border-bottom: 1px dotted black;
     }
@@ -236,7 +239,7 @@ body {
 }
 
 .person-row  {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   display: flex;
   border-bottom: 1px solid black;
 }
@@ -258,6 +261,7 @@ body {
   text-align: center;
   justify-content: center;
   align-items: center;
+  word-break: break-word;
 }
 
 .cell-name, .cell-location {
@@ -273,7 +277,6 @@ body {
   flex-wrap: wrap;
   justify-content: flex-start; /* center */
   padding: 0.1rem;
-  padding-left: 0.4rem;
   overflow: auto;
   background-color: var(--backing-grey);
   /* Margin makes sure Edit Tabs don't cover up search results. */
@@ -285,18 +288,22 @@ body {
 }
 
 .person-card {
+  flex-grow: 1;
+  flex-shrink: 0;
   display: none;
-  font-size: 0.8rem;
+  font-size: 1em;
   margin: 0.1rem;
   border: 1px solid black;
   border-radius: 0.5rem;
   height: 9rem;
-  width: 32%;
-  max-width: 12rem;
+  width: 6rem;
+  max-width: 11rem;
+  /* TODO Media query this */
+  /* max-width: 12rem; */
   flex-direction: column;
   text-align: center;
   justify-content: space-between;
-  background-color: white;
+  background-color: snow;
 }
 
 .selected-card {
@@ -312,26 +319,27 @@ body {
 
 .card-name {
   margin: 0.1rem 0;
-  font-size: 0.9rem;
+  font-size: 0.9em;
   font-weight: bold;
   text-decoration: underline;
 }
 
 .card-email {
-  font-size: 0.5rem;
+  font-size: 0.5em;
   border-bottom: 1px dotted black;
 }
 
 .card-job-title {
-  font-size: 0.8rem;
+  font-size: 0.8em;
 }
 
 .card-department {
-  font-size: 0.7rem;
+  font-size: 0.7em;
   font-style: italic;
 }
 
 .card-location {
+  font-size: 0.8em;
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -395,6 +403,7 @@ body {
 
 .button-container {
   width: 100%;
+  max-width: calc(var(--max-menu-width) * 2);
   display: flex;
   justify-content: space-evenly;
 }
@@ -413,4 +422,23 @@ body {
 .required:after {
   content: "*";
   display: inline;
+}
+
+@media only screen and (min-width: 400px) {
+  .person-card {
+    width: 8rem;
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  .person-card {
+    width: 9rem;
+    max-width: 11rem;
+    height: 10rem;
+    font-size: 1.1em;
+  }
+
+  .person-row {
+    font-size: 0.9rem;
+  }
 }
