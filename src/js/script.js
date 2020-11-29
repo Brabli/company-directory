@@ -109,10 +109,7 @@ class Personnel {
     return Personnel.personnel.find(person => person.id === id);
   }
 
-  static async populateSearchResults(refresh = true) {
-    // If true, refresh will make a request to the server for the most up to date version of the database.
-    if (refresh) await Personnel.getAllPersonnel();
-
+  static async populateSearchResults() {
     $(".card-container").html("");
     $(".table-container").html("");
 
@@ -702,11 +699,11 @@ async function saveEditChanges() {
   const success = await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
   if (success) {
     showMessage("Changes saved!", "lime");
-    Personnel.populateSearchResults(false);
+    Personnel.populateSearchResults();
     filterResults();
     reselectPerson();
     checkEditTabDifferences();
-    // These two prevent the delete button in EDIT LOCATION / DEPARTMENT tabs from staying lit up if a previously unused dep
+    // These two prevent the delete button in EDIT LOCATION / DEPARTMENT tabs from staying lit up if a previously unused dep is used.
     checkEditDepartmentFields();
   } else {
     showMessage("Failed to save changes!", "red");
@@ -725,9 +722,14 @@ async function addPersonnel() {
   if (success) {
     showMessage("Added new entry!", "lime");
     resetAddTab();
-    await Personnel.populateSearchResults(true);
-    filterResults();
-    reselectPerson();
+    const refreshed = await Personnel.getAllPersonnel();
+    if (refreshed) {
+      Personnel.populateSearchResults();
+      filterResults();
+      reselectPerson();
+    } else {
+      showMessage("Added entry, but failed to refresh database.", "yellow");
+    }
     // These two turn off the delete button in edit dep / loc tabs.
     checkEditDepartmentFields();
   } else {
@@ -739,7 +741,7 @@ async function addPersonnel() {
 async function deletePersonnel() {
   const success = await Personnel.deletePersonnel(Personnel.currentlySelectedId);
   if (success) {
-    Personnel.populateSearchResults(false);
+    Personnel.populateSearchResults();
     filterResults();
     disableTabs();
     checkEditDepartmentFields();
@@ -795,7 +797,7 @@ async function saveDepartment() {
       checkEditDepartmentFields();
       // Prevents delete button in EDIT LOCATIONS staying active when it shouldn't be.
       checkEditLocationFields();
-      Personnel.populateSearchResults(false);
+      Personnel.populateSearchResults();
       reselectPerson();
       filterResults();
     } else {
@@ -859,7 +861,7 @@ async function saveLocation() {
       populateLocationSelects();
       resetEditLocations();
       checkEditLocationFields();
-      Personnel.populateSearchResults(false);
+      Personnel.populateSearchResults();
       reselectPerson();
       filterResults();
     } else {
@@ -873,7 +875,7 @@ async function saveLocation() {
       populateLocationSelects();
       reselectLocation();
       checkEditLocationFields();
-      Personnel.populateSearchResults(false);
+      Personnel.populateSearchResults();
       reselectPerson();
       filterResults();
     } else {
@@ -1108,7 +1110,7 @@ async function initSetup() {
   await Department.getAllDepartments();
   await Location.getAllLocations();
   await Personnel.getAllPersonnel();
-  Personnel.populateSearchResults(false);
+  Personnel.populateSearchResults();
   populateLocationSelects();
   populateDepartmentSelects();
   updateShowingCounter();
