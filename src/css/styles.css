@@ -222,8 +222,15 @@ body {
 }
 
 .search-results-container {
-  overflow: overlay;
   background-color: var(--backing-grey);
+}
+
+.auto-overflow {
+  overflow: auto;
+}
+
+.overlay-overflow {
+  overflow: overlay;
 }
 
 .table-container {
