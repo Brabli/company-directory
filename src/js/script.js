@@ -23,13 +23,12 @@ class Personnel {
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
         Personnel.personnel = resJson.data;
-        console.log("Successfully retrieved personnel!");
         return true;
       } else {
-        console.log("Failed to retrieve personnel!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -49,13 +48,12 @@ class Personnel {
       });
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
-        console.log("Successfull add!");
         return true;
       } else {
-        console.log("Failed to add!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -88,6 +86,7 @@ class Personnel {
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -108,10 +107,10 @@ class Personnel {
         Personnel.personnel.splice(personIndex, 1);
         return true;
       } else {
-        console.log("Delete failed!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -186,13 +185,12 @@ class Department {
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
         Department.departments = resJson.data;
-        console.log("Successfully retrieved departments!");
         return true;
       } else {
-        console.log("Failed to retrieve departments!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -208,13 +206,12 @@ class Department {
       });
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
-        console.log("Successfully added department!");
         return true;
       } else {
-        console.log("Failed to add department!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -236,10 +233,10 @@ class Department {
         Department.departments[depIndex]["locationID"] = locationId;
         return true;
       } else {
-        console.log("Failed to update department!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -258,10 +255,10 @@ class Department {
         Department.departments.splice(depIndex, 1);
         return true;
       } else {
-        console.log("Delete failed!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -300,13 +297,12 @@ class Location {
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
         Location.locations = resJson.data;
-        console.log("Successfully got locations!");
         return true;
       } else {
-        console.log("Get all Locations failed!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -321,13 +317,12 @@ class Location {
       });
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
-        console.log("Successfully added location!");
         return true;
       } else {
-        console.log("Failed to add location!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -348,10 +343,10 @@ class Location {
         Location.locations[locIndex]["name"] = name;
         return true;
       } else {
-        console.log("Update failed!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -371,10 +366,10 @@ class Location {
         Location.locations.splice(locIndex, 1);
         return true;
       } else {
-        console.log("Delete failed!");
         return false;
       }
     } catch(e) {
+      console.log(e);
       return false;
     }
   }
@@ -392,7 +387,6 @@ class Location {
     Location.locations.forEach(loc => {
       locationOptionsString += `<option class="location-option" data-location-id="${loc.id}" value="${loc.name}">${loc.name}</option>`;
     });
-    //console.log(locationOptionsString);
     return locationOptionsString;
   }
 }
