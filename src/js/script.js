@@ -566,7 +566,7 @@ function enableTabs() {
   $(".edit-tab-text-input").attr("disabled", false);
   $(".edit-tab-select-input").attr("disabled", false);
 
-  $(".delete-message").html("Are you sure you want to delete the currently selected entry?");
+  $(".delete-message").html("Are you sure you want to delete this entry?");
   $("#delete-entry").removeClass("disabled");
 }
 
@@ -1000,7 +1000,7 @@ function checkEditDepartmentFields() {
       if (newDepLocation === null) {
         $("#save-department").addClass("disabled");
         // If current loc and new loc are different AND names are the same, OR if the new name is valid THEN remove disabled class.
-      } else if ((App.selectedDepCurrentLoc !== newDepLocation &&
+      } else if ((Department.selectedDepCurrentLoc !== newDepLocation &&
         newDepName.toLowerCase() === selectedDepartment.toLowerCase())
         || !checkDepartmentNames(newDepName)) {
         
@@ -1042,6 +1042,16 @@ function checkEditLocationFields() {
   }, 0);
 }
 
+// Toggles betweem card and row view.
+function toggleResultsView() {
+  $(".circle-button").toggleClass("active-circle");
+  $(".card-container").toggleClass("selected-results-container");
+  $(".table-container").toggleClass("selected-results-container");
+  $(".table-header").toggleClass("selected-results-container");
+  // Switches between scrollbar being placed next to cards and on top of rows.
+  $(".search-results-container").toggleClass("auto-overflow overlay-overflow");
+}
+
 // Displays a message to the user for a few seconds
 function showMessage(msg, colour = "snow") {
   clearTimeout(globalTimeout);
@@ -1066,10 +1076,7 @@ $(".bottom-tab").on("click", e => {
 
 // Row View Toggle
 $(".circle-button").on("click", () => {
-  $(".circle-button").toggleClass("active-circle");
-  $(".card-container").toggleClass("selected-results-container");
-  $(".table-container").toggleClass("selected-results-container");
-  $(".table-header").toggleClass("selected-results-container");
+  toggleResultsView();
 });
 
 // --- SEARCH TAB --- //
