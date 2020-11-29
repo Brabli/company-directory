@@ -298,8 +298,6 @@ body {
   height: 9rem;
   width: 6rem;
   max-width: 11rem;
-  /* TODO Media query this */
-  /* max-width: 12rem; */
   flex-direction: column;
   text-align: center;
   justify-content: space-between;
