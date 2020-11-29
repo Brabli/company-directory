@@ -151,9 +151,6 @@ class Personnel {
         Personnel.currentlySelectedId = $(e.currentTarget).data("id").toString();
         selectPerson(Personnel.currentlySelectedId);
         enableTabs();
-        if (App.currentlySelectedTab === "edit" || App.currentlySelectedTab === "delete") {
-          reselectTab();
-        }
       }
     });
   }
@@ -220,7 +217,7 @@ class Department {
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
         const depIndex = Department.departments.findIndex(dep => dep.id === id);
-        Department.departments[depindex]["name"] = name;
+        Department.departments[depIndex]["name"] = name;
         Department.departments[depIndex]["locationID"] = locationId;
         return true;
       } else {
@@ -391,7 +388,6 @@ class Location {
 // TODO move these to appropriate clases; no need for an App class
 class App {
   static timeout;
-  static currentlySelectedTab = null;
   // Used when enabling or disabling EDIT tab save changes button.
   static selectedPersonFirstName = null;
   static selectedPersonLastName = null;
@@ -507,12 +503,18 @@ function colourRows() {
 
 // Populates location select elements.
 function populateLocationSelects() {
+  // TODO Assess whether I need this or not
+  let setToNull = false;
+  if ($("#location-change").val() === null) setToNull = true;
+
   const standardLocOptions = Location.getHtmlOptions();
   const allLocsOption = '<option class="location-option" data-location-id="all">All Locations</option>';
   const newLocOption = '<option>NEW LOCATION</option>';
   $("#location-filter").html(allLocsOption + standardLocOptions);
   $("#location-change").html(standardLocOptions);
   $("#location-select").html(newLocOption + standardLocOptions)
+
+  if (setToNull) $("#location-change").val(null);
 }
 
 // Populates department select elements.
@@ -520,10 +522,23 @@ function populateDepartmentSelects() {
   const standardDepOptions = Department.getHtmlOptions();
   const allDepsOption = '<option data-department-id="all">All Departments</option>';
   const newDepOption = '<option>NEW DEPARTMENT</option>';
+ // TODO Test this more thoroughly
+ // previousVal reselects the last value of the select menu if possible.
+  let previousVal = $("#department-filter").val();
   $("#department-filter").html(allDepsOption + standardDepOptions);
+  $("#department-filter").val(previousVal);
+
+  previousVal = $("#add-department").val();
   $("#add-department").html(standardDepOptions);
+  $("#add-department").val(previousVal);
+
+  previousVal = $("#edit-department").val();
   $("#edit-department").html(standardDepOptions);
+  $("#edit-department").val(previousVal);
+
+  previousVal = $("#department-select").val();
   $("#department-select").html(newDepOption + standardDepOptions);
+  $("#department-select").val(previousVal);
 }
 
 // Switches between "main" tabs at top of app.
@@ -534,38 +549,33 @@ function changeMainTab(e) {
   if ($tab.hasClass("selected-tab")) {
     $tab.removeClass("selected-tab");
     $tabMenu.removeClass("selected-menu");
-    App.currentlySelectedTab = null;
   } else {
     $tab.addClass("selected-tab");
     $tabMenu.addClass("selected-menu");
     $tab.siblings().removeClass("selected-tab");
     $tabMenu.siblings().removeClass("selected-menu");
-    App.currentlySelectedTab = $tab.html();
   }
-}
-
-// Reselects the previously selected tab.
-function reselectTab() {
-  const tabName = App.currentlySelectedTab;
-  $(`#${tabName}-tab`).addClass("selected-tab");
-  $(`.${tabName}-menu`).addClass("selected-menu");
 }
 
 // Enables EDIT and DELETE tabs.
 function enableTabs() {
-  console.log("Run")
-  $("#edit-tab").removeClass("disabled");
-  $("#delete-tab").removeClass("disabled");
+  $(".edit-tab-text-input").attr("disabled", false);
+  $(".edit-tab-select-input").attr("disabled", false);
+
+  $(".delete-message").html("Are you sure you want to delete the currently selected entry?");
+  $("#delete-entry").removeClass("disabled");
 }
 
 // Disables EDIT and DELETE tabs.
 function disableTabs() {
-  $("#edit-tab").addClass("disabled");
-  $("#delete-tab").addClass("disabled");
-  $("#edit-tab").removeClass("selected-tab");
-  $("#delete-tab").removeClass("selected-tab");
-  $(".edit-menu").removeClass("selected-menu");
-  $(".delete-menu").removeClass("selected-menu");
+
+  $(".edit-tab-text-input").attr("disabled", true);
+  $(".edit-tab-select-input").attr("disabled", true);
+  $("#save-changes").addClass("disabled");
+  resetEditTab();
+
+  $(".delete-message").html("Select an entry to delete it.");
+  $(".delete-button").addClass("disabled");
 }
 
 // Switches between bottom tabs.
@@ -630,6 +640,12 @@ function resetEditLocations() {
 function resetAddTab() {
   $(".add-tab-input").val("");
   $("#add-entry").addClass("disabled");
+}
+
+// Reset Edit Tab Fields
+function resetEditTab() {
+  $(".edit-tab-text-input").val("");
+  $(".edit-tab-select-input").val(null);
 }
 
 // Selects Person Card and Row and fills out EDIT tab's fields.
@@ -810,6 +826,7 @@ async function saveDepartment() {
     if (success) {
       showMessage("Added new department!", "lime");
       resetEditDepartments();
+      // TODO Test this some more to see if it actually prevents database corruption.
       const refreshed = await Department.getAllDepartments();
       if (refreshed) {
         populateDepartmentSelects();
@@ -1160,6 +1177,8 @@ async function initSetup() {
   resetAddTab();
   resetEditDepartments();
   resetEditLocations();
+  disableTabs();
+  resetFilter();
   filterResults();
 }
 
