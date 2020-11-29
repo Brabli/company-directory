@@ -1175,20 +1175,23 @@ $("#delete-location").on("click", e => {
 });
 
 //~~~~~~ INIT SETUP ~~~~~~~//
-async function initSetup() { 
-  await Department.getAllDepartments();
-  await Location.getAllLocations();
-  await Personnel.getAllPersonnel();
-  Personnel.populateSearchResults();
-  populateLocationSelects();
-  populateDepartmentSelects();
-  updateShowingCounter();
-  resetAddTab();
-  resetEditDepartments();
-  resetEditLocations();
-  disableTabs();
-  resetFilter();
-  filterResults();
+function initSetup() {
+  Promise.all([Department.getAllDepartments(), Location.getAllLocations(), Personnel.getAllPersonnel()]).then(val => {
+    if (val[0] && val[1] && val[2]) {
+      Personnel.populateSearchResults();
+      populateLocationSelects();
+      populateDepartmentSelects();
+      updateShowingCounter();
+      resetAddTab();
+      resetEditDepartments();
+      resetEditLocations();
+      disableTabs();
+      resetFilter();
+      filterResults();
+    } else {
+      showMessage("Error connecting to database!", "red");
+    }
+  })
 }
 
 initSetup();
