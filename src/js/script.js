@@ -503,42 +503,48 @@ function colourRows() {
 
 // Populates location select elements.
 function populateLocationSelects() {
-  // TODO Assess whether I need this or not
-  let setToNull = false;
-  if ($("#location-change").val() === null) setToNull = true;
-
   const standardLocOptions = Location.getHtmlOptions();
   const allLocsOption = '<option class="location-option" data-location-id="all">All Locations</option>';
   const newLocOption = '<option>NEW LOCATION</option>';
-  $("#location-filter").html(allLocsOption + standardLocOptions);
-  $("#location-change").html(standardLocOptions);
-  $("#location-select").html(newLocOption + standardLocOptions)
+  const previousFilterLocationVal = $("#location-filter").val();
+  const previousLocationChangeVal = $("#location-change").val();
+  const previousLocationSelectVal = $("#location-select").val();
 
-  if (setToNull) $("#location-change").val(null);
+  $("#location-filter").html(allLocsOption + standardLocOptions);
+  $("#location-filter").val(previousFilterLocationVal);
+  if ($("#location-filter").val() === null) $("#location-filter").val("All Locations");
+
+  $("#location-change").html(standardLocOptions);
+  $("#location-change").val(previousLocationChangeVal);
+
+  $("#location-select").html(newLocOption + standardLocOptions)
+  $("#location-select").val(previousLocationSelectVal);
 }
 
 // Populates department select elements.
+// TODO Test this more thoroughly
 function populateDepartmentSelects() {
   const standardDepOptions = Department.getHtmlOptions();
   const allDepsOption = '<option data-department-id="all">All Departments</option>';
   const newDepOption = '<option>NEW DEPARTMENT</option>';
- // TODO Test this more thoroughly
- // previousVal reselects the last value of the select menu if possible.
-  let previousVal = $("#department-filter").val();
+
+  const previousFilterDepartmentVal = $("#department-filter").val();
+  const previousAddTabDepartmentVal = $("#add-department").val();
+  const previousEditTabDepartmentVal = $("#edit-department").val();
+  const previousSelectDepartmentVal = $("#department-select").val();
+
   $("#department-filter").html(allDepsOption + standardDepOptions);
-  $("#department-filter").val(previousVal);
+  $("#department-filter").val(previousFilterDepartmentVal);
+  if ($("#department-filter").val() === null) $("#department-filter").val("All Departments");
 
-  previousVal = $("#add-department").val();
   $("#add-department").html(standardDepOptions);
-  $("#add-department").val(previousVal);
+  $("#add-department").val(previousAddTabDepartmentVal);
 
-  previousVal = $("#edit-department").val();
   $("#edit-department").html(standardDepOptions);
-  $("#edit-department").val(previousVal);
+  $("#edit-department").val(previousEditTabDepartmentVal);
 
-  previousVal = $("#department-select").val();
   $("#department-select").html(newDepOption + standardDepOptions);
-  $("#department-select").val(previousVal);
+  $("#department-select").val(previousSelectDepartmentVal);
 }
 
 // Switches between "main" tabs at top of app.
@@ -930,6 +936,7 @@ async function saveLocation() {
       populateLocationSelects();
       reselectLocation();
       checkEditLocationFields();
+      updateEditDepartmentFields();
       Personnel.populateSearchResults();
       reselectPerson();
       filterResults();
