@@ -65,10 +65,15 @@ class Personnel {
       });
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
-        console.log("Successful update!");
+        // Edits person in array. This saves a request to the database.
+        const personIndex = Personnel.personnel.findIndex(person => person.id === id);
+        Personnel.personnel[personIndex]["firstName"] = firstName;
+        Personnel.personnel[personIndex]["lastName"] = lastName;
+        Personnel.personnel[personIndex]["jobTitle"] = jobTitle;
+        Personnel.personnel[personIndex]["email"] = email;
+        Personnel.personnel[personIndex]["departmentID"] = departmentId;
         return true;
       } else {
-        console.log("Update failed!");
         return false;
       }
     } catch(e) {
@@ -87,7 +92,9 @@ class Personnel {
       });
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
-        console.log("Successfully deleted!");
+        // Removes person from array.
+        const personIndex = Personnel.personnel.findIndex(person => person.id === id);
+        Personnel.personnel.splice(personIndex, 1);
         return true;
       } else {
         console.log("Delete failed!");
@@ -210,7 +217,9 @@ class Department {
     });
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully updated department!");
+      const depIndex = Department.departments.findIndex(dep => dep.id === id);
+      Department.departments[depindex]["name"] = name;
+      Department.departments[depIndex]["locationID"] = locationId;
       return true;
     } else {
       console.log("Failed to update department!");
@@ -228,7 +237,8 @@ class Department {
       });
       const resJson = await res.json();
       if (resJson["status"]["name"] === "ok") {
-        console.log("Successfully deleted!");
+        const depIndex = Department.departments.findIndex(dep => dep.id === id);
+        Department.departments.splice(depIndex, 1);
         return true;
       } else {
         console.log("Delete failed!");
@@ -308,7 +318,8 @@ class Location {
     });
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully updated!");
+      const locIndex = Location.locations.findIndex(loc => loc.id === id);
+      Location.locations[locIndex]["name"] = name;
       return true;
     } else {
       console.log("Update failed!");
@@ -326,7 +337,8 @@ class Location {
     });
     const resJson = await res.json();
     if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully deleted!");
+      const locIndex = Location.locations.findIndex(loc => loc.id === id);
+      Location.locations.splice(locIndex, 1);
       return true;
     } else {
       console.log("Delete failed!");
@@ -686,11 +698,11 @@ async function saveEditChanges() {
   const jobTitle = $("#edit-job-title").val().trim();
   const departmentName = $("#edit-department").val();
   const departmentId = Department.getDepartmentByName(departmentName).id;
-  // TODO Add checks here!
+
   const success = await Personnel.updatePersonnel(fName, lName, jobTitle, email, departmentId, id);
   if (success) {
     showMessage("Changes saved!", "lime");
-    await Personnel.populateSearchResults(true);
+    Personnel.populateSearchResults(false);
     filterResults();
     reselectPerson();
     checkEditTabDifferences();
@@ -727,8 +739,6 @@ async function addPersonnel() {
 async function deletePersonnel() {
   const success = await Personnel.deletePersonnel(Personnel.currentlySelectedId);
   if (success) {
-    const personIndex = Personnel.personnel.findIndex(person => person.id === Personnel.currentlySelectedId);
-    Personnel.personnel.splice(personIndex, 1);
     Personnel.populateSearchResults(false);
     filterResults();
     disableTabs();
@@ -780,7 +790,6 @@ async function saveDepartment() {
     const success = await Department.updateDepartment(newDepName, locationId, Department.currentlySelectedId);
     if (success) {
       showMessage("Saved changes!", "lime");
-      await Department.getAllDepartments(); //TODO Edit in array?
       populateDepartmentSelects();
       reselectDepartment();
       checkEditDepartmentFields();
@@ -801,8 +810,6 @@ async function deleteDepartment() {
   if (selectedDepartment !== "NEW DEPARTMENT") {
     const success = await Department.deleteDepartment(Department.currentlySelectedId);
     if (success) {
-      const depIndex = Department.departments.findIndex(dep => dep.id === Department.currentlySelectedId);
-      Department.departments.splice(depIndex, 1);
       populateDepartmentSelects();
       resetEditDepartments();
       checkEditLocationFields();
@@ -863,7 +870,6 @@ async function saveLocation() {
     const success = await Location.updateLocation(newLocationName, Location.currentlySelectedId);
     if (success) {
       showMessage("Saved changes!", "lime");
-      await Location.getAllLocations(); // TODO just edit original entry?
       populateLocationSelects();
       reselectLocation();
       checkEditLocationFields();
@@ -880,8 +886,6 @@ async function saveLocation() {
 async function deleteLocation() {
   const success = await Location.deleteLocation(Location.currentlySelectedId);
   if (success) {
-    const locIndex = Location.locations.findIndex(loc => loc.id === Location.currentlySelectedId);
-    Location.locations.splice(locIndex, 1);
     populateLocationSelects();
     resetEditLocations();
     showMessage("Location deleted!", "lime");
