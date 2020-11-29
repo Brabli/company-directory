@@ -169,14 +169,18 @@ class Department {
   static currentlySelectedId = null;
 
   static async getAllDepartments() {
-    const res = await fetch("php/getAllDepartments.php");
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      Department.departments = resJson.data;
-      console.log("Successfully retrieved departments!");
-      return true;
-    } else {
-      console.log("Failed to retrieve departments!");
+    try {
+      const res = await fetch("php/getAllDepartments.php");
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        Department.departments = resJson.data;
+        console.log("Successfully retrieved departments!");
+        return true;
+      } else {
+        console.log("Failed to retrieve departments!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
@@ -279,70 +283,86 @@ class Location {
   static currentlySelectedName = null;
 
   static async getAllLocations() {
-    const res = await fetch("php/getAllLocations.php");
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      Location.locations = resJson.data;
-      console.log("Successfully got locations!");
-      return true;
-    } else {
-      console.log("Get all Locations failed!");
+    try {
+      const res = await fetch("php/getAllLocations.php");
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        Location.locations = resJson.data;
+        console.log("Successfully got locations!");
+        return true;
+      } else {
+        console.log("Get all Locations failed!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
 
   static async addLocation(name) {
-    const res = await fetch("php/addLocation.php", {
-      method: "POST",
-      body: JSON.stringify({
-        name
-      })
-    });
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      console.log("Successfully added location!");
-      return true;
-    } else {
-      console.log("Failed to add location!");
+    try {
+      const res = await fetch("php/addLocation.php", {
+        method: "POST",
+        body: JSON.stringify({
+          name
+        })
+      });
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        console.log("Successfully added location!");
+        return true;
+      } else {
+        console.log("Failed to add location!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
 
   // Update existing location in database
   static async updateLocation(name, id) {
-    const res = await fetch("php/updateLocation.php", {
-      method: "POST",
-      body: JSON.stringify({
-        name,
-        id
-      })
-    });
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      const locIndex = Location.locations.findIndex(loc => loc.id === id);
-      Location.locations[locIndex]["name"] = name;
-      return true;
-    } else {
-      console.log("Update failed!");
+    try {
+      const res = await fetch("php/updateLocation.php", {
+        method: "POST",
+        body: JSON.stringify({
+          name,
+          id
+        })
+      });
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        const locIndex = Location.locations.findIndex(loc => loc.id === id);
+        Location.locations[locIndex]["name"] = name;
+        return true;
+      } else {
+        console.log("Update failed!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
 
   // Delete location by ID
   static async deleteLocation(id) {
-    const res = await fetch("php/deleteLocation.php", {
-      method: "POST",
-      body: JSON.stringify({
-        id
-      })
-    });
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      const locIndex = Location.locations.findIndex(loc => loc.id === id);
-      Location.locations.splice(locIndex, 1);
-      return true;
-    } else {
-      console.log("Delete failed!");
+    try {
+      const res = await fetch("php/deleteLocation.php", {
+        method: "POST",
+        body: JSON.stringify({
+          id
+        })
+      });
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        const locIndex = Location.locations.findIndex(loc => loc.id === id);
+        Location.locations.splice(locIndex, 1);
+        return true;
+      } else {
+        console.log("Delete failed!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
