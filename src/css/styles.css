@@ -32,6 +32,7 @@ body {
 }
 
 .title-bar {
+  cursor: default;
   display: flex;
   align-items: center;
   height: 1.5rem;
@@ -49,6 +50,7 @@ body {
 }
 
 .tab {
+  cursor: pointer;
   text-transform: uppercase;
   width: 25%;
   display: flex;
@@ -66,6 +68,7 @@ body {
 }
 
 .button {
+  cursor: pointer;
   text-transform: uppercase;
   font-size: 0.7rem;
   display: flex;
@@ -204,6 +207,7 @@ body {
 }
 
 .circle-button {
+  cursor: pointer;
   display: inline-block;
   border: 1px solid var(--selected-orange);
   border-radius: 50%;
@@ -239,6 +243,7 @@ body {
 }
 
 .person-row  {
+  cursor: pointer;
   font-size: 0.7rem;
   display: flex;
   border-bottom: 1px solid black;
@@ -275,7 +280,7 @@ body {
 .card-container {
   display: none;
   flex-wrap: wrap;
-  justify-content: flex-start; /* center */
+  justify-content: flex-start;
   padding: 0.1rem;
   overflow: auto;
   background-color: var(--backing-grey);
@@ -288,6 +293,7 @@ body {
 }
 
 .person-card {
+  cursor: pointer;
   flex-grow: 1;
   flex-shrink: 0;
   display: none;
@@ -355,6 +361,7 @@ body {
 }
 
 .bottom-tab {
+  cursor: pointer;
   text-transform: uppercase;
   font-size: 0.8rem;
   color: snow;
@@ -407,6 +414,7 @@ body {
 }
 
 .disabled {
+  cursor: default;
   background-color: var(--backing-grey);
   color: var(--navbar-grey);
 }
