@@ -1,9 +1,20 @@
+// Global var that stores timeouts. Used in showMessage().
+let globalTimeout;
+
+
 /* PERSONNEL CLASS */
 /*~~~~~~~~~~~~~~~~~~*/
 class Personnel {
 
   static personnel = [];
   static currentlySelectedId = null;
+
+  // Used when enabling or disabling EDIT tab save changes button.
+  static selectedPersonFirstName = null;
+  static selectedPersonLastName = null;
+  static selectedPersonEmail = null;
+  static selectedPersonJobTitle = null;
+  static selectedPersonDepartment = null;
 
   // Return array of all personnel rows
   static async getAllPersonnel() {
@@ -164,6 +175,10 @@ class Department {
 
   static departments = [];
   static currentlySelectedId = null;
+
+  // Used in Edit Departments Tab
+  static selectedDepCurrentName = null;
+  static selectedDepCurrentLoc = null;
 
   static async getAllDepartments() {
     try {
@@ -384,22 +399,6 @@ class Location {
 
 
 
-// This class acts as a global var container.
-// TODO move these to appropriate clases; no need for an App class
-class App {
-  static timeout;
-  // Used when enabling or disabling EDIT tab save changes button.
-  static selectedPersonFirstName = null;
-  static selectedPersonLastName = null;
-  static selectedPersonEmail = null;
-  static selectedPersonJobTitle = null;
-  static selectedPersonDepartment = null;
-  // Used in Edit Departments Tab
-  static selectedDepCurrentName = null;
-  static selectedDepCurrentLoc = null;
-}
-
-
 
 /* FUNCTIONS */
 /*~~~~~~~~~~~*/
@@ -522,7 +521,6 @@ function populateLocationSelects() {
 }
 
 // Populates department select elements.
-// TODO Test this more thoroughly
 function populateDepartmentSelects() {
   const standardDepOptions = Department.getHtmlOptions();
   const allDepsOption = '<option data-department-id="all">All Departments</option>';
@@ -669,23 +667,28 @@ function selectPerson(personnelId) {
   $("#edit-email").val(personData.email);
   $("#edit-job-title").val(personData.jobTitle);
   $("#edit-department").val(personDepartment);
-  App.selectedPersonFirstName = personData.firstName.toLowerCase();
-  App.selectedPersonLastName = personData.lastName.toLowerCase();
-  App.selectedPersonEmail = personData.email.toLowerCase();
-  App.selectedPersonJobTitle = personData.jobTitle.toLowerCase();
-  App.selectedPersonDepartment = personDepartment.toLowerCase();
+  Personnel.selectedPersonFirstName = personData.firstName.toLowerCase();
+  Personnel.selectedPersonLastName = personData.lastName.toLowerCase();
+  Personnel.selectedPersonEmail = personData.email.toLowerCase();
+  Personnel.selectedPersonJobTitle = personData.jobTitle.toLowerCase();
+  Personnel.selectedPersonDepartment = personDepartment.toLowerCase();
   checkEditTabDifferences();
 }
 
 // Checks to see if an edit has been made before enabling the save button.
 function checkEditTabDifferences() {
   setTimeout(() => {
-    if ($("#edit-first-name").val().toLowerCase().trim() === App.selectedPersonFirstName &&
-      $("#edit-last-name").val().toLowerCase().trim() === App.selectedPersonLastName &&
-      $("#edit-email").val().toLowerCase().trim() === App.selectedPersonEmail &&
-      $("#edit-job-title").val().toLowerCase().trim() === App.selectedPersonJobTitle &&
-      $("#edit-department").val().toLowerCase() === App.selectedPersonDepartment) {
+    // If FIRST or LAST name is EMPTY, DISABLE Save Changes Button.
+    if ($("#edit-first-name").val().toLowerCase().trim() === "" || $("#edit-last-name").val().toLowerCase().trim() === "") {
       $("#save-changes").addClass("disabled");
+    // ELSE IF all fields are the SAME as when the entry was first selected, DISABLE Save Changes Button.
+    } else if ($("#edit-first-name").val().toLowerCase().trim() === Personnel.selectedPersonFirstName &&
+      $("#edit-last-name").val().toLowerCase().trim() === Personnel.selectedPersonLastName &&
+      $("#edit-email").val().toLowerCase().trim() === Personnel.selectedPersonEmail &&
+      $("#edit-job-title").val().toLowerCase().trim() === Personnel.selectedPersonJobTitle &&
+      $("#edit-department").val().toLowerCase() === Personnel.selectedPersonDepartment) {
+      $("#save-changes").addClass("disabled");
+    // Otherwise ENABLE Save Changes Button.
     } else {
       $("#save-changes").removeClass("disabled");
     }
@@ -815,8 +818,8 @@ function updateEditDepartmentFields() {
     $("#location-change").val(locationName);
     $("#department-name").val(departmentName);
     Department.currentlySelectedId = Department.getDepartmentByName(departmentName).id;
-    App.selectedDepCurrentName = departmentName;
-    App.selectedDepCurrentLoc = locationName;
+    Department.selectedDepCurrentName = departmentName;
+    Department.selectedDepCurrentLoc = locationName;
   }
 }
 
@@ -832,7 +835,6 @@ async function saveDepartment() {
     if (success) {
       showMessage("Added new department!", "lime");
       resetEditDepartments();
-      // TODO Test this some more to see if it actually prevents database corruption.
       const refreshed = await Department.getAllDepartments();
       if (refreshed) {
         populateDepartmentSelects();
@@ -1042,9 +1044,9 @@ function checkEditLocationFields() {
 
 // Displays a message to the user for a few seconds
 function showMessage(msg, colour = "snow") {
-  clearTimeout(App.timeout);
+  clearTimeout(globalTimeout);
   $(".message-output").html(msg).css("color", colour);
-  App.timeout = setTimeout(() => {
+  globalTimeout = setTimeout(() => {
     $(".message-output").html("Company Directory").css("color", "snow");
   }, 3000);
 }
