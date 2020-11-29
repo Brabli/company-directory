@@ -115,7 +115,7 @@ class Personnel {
 
     Personnel.personnel.forEach(person => {
       const department = Department.getDepartmentById(person.departmentID);
-      const location = Location.getLocationById(department.locationID)
+      const location = Location.getLocationById(department.locationID);
       // CARDS
       $(".card-container").append(`
       <div class="person-card" data-id="${person.id}">
@@ -127,8 +127,8 @@ class Personnel {
           <p class="card-data card-job-title">${person.jobTitle}</p>
         </div>
         <div class="card-info-group">
-          <p class="card-data card-department">${department.name}</p>
-          <p class="card-data card-location">${location.name}</p>
+          <p class="card-data card-department">${department ? department.name : "Unknown Department"}</p>
+          <p class="card-data card-location">${location ? location.name : "Unknown Location"}</p>
         </div>
       </div>`);
       // ROWS
@@ -136,8 +136,8 @@ class Personnel {
       <div class="person-row even" data-id="${person.id}">
         <div class="cell cell-name b-right">${person.firstName} ${person.lastName}</div>
         <div class="cell cell-job-title b-right">${person.jobTitle}</div>
-        <div class="cell cell-department b-right">${department.name}</div>
-        <div class="cell cell-location">${location.name}</div>
+        <div class="cell cell-department b-right">${department ? department.name : "Unknown"}</div>
+        <div class="cell cell-location">${location ? location.name : "Unknown"}</div>
       </div>`);
     });
 
@@ -204,22 +204,26 @@ class Department {
   }
 
   static async updateDepartment(name, locationId, id) {
-    const res = await fetch("php/updateDepartment.php", {
-      method: "POST",
-      body: JSON.stringify({
-        name,
-        locationId,
-        id
-      })
-    });
-    const resJson = await res.json();
-    if (resJson["status"]["name"] === "ok") {
-      const depIndex = Department.departments.findIndex(dep => dep.id === id);
-      Department.departments[depindex]["name"] = name;
-      Department.departments[depIndex]["locationID"] = locationId;
-      return true;
-    } else {
-      console.log("Failed to update department!");
+    try {
+      const res = await fetch("php/updateDepartment.php", {
+        method: "POST",
+        body: JSON.stringify({
+          name,
+          locationId,
+          id
+        })
+      });
+      const resJson = await res.json();
+      if (resJson["status"]["name"] === "ok") {
+        const depIndex = Department.departments.findIndex(dep => dep.id === id);
+        Department.departments[depindex]["name"] = name;
+        Department.departments[depIndex]["locationID"] = locationId;
+        return true;
+      } else {
+        console.log("Failed to update department!");
+        return false;
+      }
+    } catch(e) {
       return false;
     }
   }
@@ -728,7 +732,7 @@ async function addPersonnel() {
       filterResults();
       reselectPerson();
     } else {
-      showMessage("Added entry, but failed to refresh database.", "yellow");
+      showMessage("Added entry, but failed to refresh database", "yellow");
     }
     // These two turn off the delete button in edit dep / loc tabs.
     checkEditDepartmentFields();
@@ -759,8 +763,13 @@ function updateEditDepartmentFields() {
     $("#department-name").val("");
     $("#location-change").val("");
   } else {
-    const locationId = Department.getDepartmentByName(departmentName).locationID;
-    const locationName = Location.getLocationById(locationId).name;
+    let locationId, locationName;
+    try {
+      locationId = Department.getDepartmentByName(departmentName).locationID;
+      locationName = Location.getLocationById(locationId).name;
+    } catch(e) {
+      showMessage("Warning, this department is corrupted!", "red");
+    }
     $("#location-change").val(locationName);
     $("#department-name").val(departmentName);
     Department.currentlySelectedId = Department.getDepartmentByName(departmentName).id;
@@ -780,10 +789,14 @@ async function saveDepartment() {
     const success = await Department.addDepartment(newDepName, locationId);
     if (success) {
       showMessage("Added new department!", "lime");
-      await Department.getAllDepartments();
-      populateDepartmentSelects();
       resetEditDepartments();
-      checkEditLocationFields();
+      const refreshed = await Department.getAllDepartments();
+      if (refreshed) {
+        populateDepartmentSelects();
+        checkEditLocationFields();
+      } else {
+        showMessage("Added department, but failed to refresh database", "yellow");
+      }   
     } else {
       showMessage("Failed to add department");
     }
@@ -857,13 +870,18 @@ async function saveLocation() {
     const success = await Location.addLocation(newLocationName);
     if (success) {
       showMessage("Added location!", "lime");
-      await Location.getAllLocations();
-      populateLocationSelects();
       resetEditLocations();
-      checkEditLocationFields();
-      Personnel.populateSearchResults();
-      reselectPerson();
-      filterResults();
+      const refreshed = await Location.getAllLocations();
+      if (refreshed) {
+          populateLocationSelects();
+          checkEditLocationFields();
+          Personnel.populateSearchResults();
+          reselectPerson();
+          filterResults();
+        } else {
+          checkEditLocationFields();
+          showMessage("Added location, but failed to refresh database", "yellow");
+        }
     } else {
       showMessage("Failed to add location", "red");
     }
@@ -933,7 +951,12 @@ function checkEditDepartmentFields() {
       } else {
         $("#delete-department").addClass("disabled");
       }
-      if ((App.selectedDepCurrentLoc !== newDepLocation && newDepName.toLowerCase() === selectedDepartment.toLowerCase()) || !checkDepartmentNames(newDepName)) {
+      if (newDepLocation === null) {
+        $("#save-department").addClass("disabled");
+        // If current loc and new loc are different AND names are the same, OR if the new name is valid THEN remove disabled class.
+      } else if ((App.selectedDepCurrentLoc !== newDepLocation &&
+        newDepName.toLowerCase() === selectedDepartment.toLowerCase())
+        || !checkDepartmentNames(newDepName)) {
         
         $("#save-department").removeClass("disabled");
       } else {
