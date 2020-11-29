@@ -1,12 +1,8 @@
 <?php
 
-	// remove next two lines for production
-	ini_set('display_errors', 'On');
-  error_reporting(E_ALL);
-  
 	$executionStartTime = microtime(true);
   include("config.php");
-  // Header set here as there are several points that JSON may be returned by the script.
+
 	header('Content-Type: application/json; charset=UTF-8');
   $conn = new mysqli($cd_host, $cd_user, $cd_password, $cd_dbname, $cd_port, $cd_socket);
   
