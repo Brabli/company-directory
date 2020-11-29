@@ -275,6 +275,7 @@ body {
 }
 
 .person-row  {
+  min-height: 2rem;
   cursor: pointer;
   font-size: 0.7rem;
   display: flex;
@@ -312,7 +313,7 @@ body {
 .card-container {
   display: none;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: space-evenly;
   padding: 0.1rem;
   overflow: auto;
   background-color: var(--backing-grey);
@@ -335,7 +336,7 @@ body {
   border-radius: 0.5rem;
   height: 9rem;
   width: 6rem;
-  max-width: 11rem;
+  max-width: 10rem;
   flex-direction: column;
   text-align: center;
   justify-content: space-between;
@@ -466,9 +467,16 @@ body {
   .person-card {
     width: 8rem;
   }
+  .person-row {
+    font-size: 0.8rem;
+  }
 }
 
 @media only screen and (min-width: 1000px) {
+  .card-container {
+    justify-content: flex-start;
+  }
+  
   .person-card {
     width: 9rem;
     max-width: 11rem;
