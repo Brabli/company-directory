@@ -1,1 +1,205 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Company Directory</title><meta name="description" content="Manage your company's database via one simple interface"><link rel="stylesheet" type="text/css" href="css/styles.css"></head><body><div><!-- TITLE BAR --><div class="title-bar message-output">Company Directory</div><!-- TAB BAR --><div class="tab-container"><div class="tab b-right selected-tab" id="search-tab">search</div><div class="tab b-right" id="add-tab">add</div><div class="tab b-right" id="edit-tab">edit</div><div class="tab" id="delete-tab">delete</div></div><!-- Menu Container --><div class="menu-container"><!-- SEARCH MENU --><div class="menu search-menu selected-menu"><!-- Name Filter --><div class="filter-container"><label for="name-filter">NAME</label> <input type="text" id="name-filter"></div><!-- Department Filter --><div class="filter-container"><label for="department-filter">DEPARTMENT</label> <select id="department-filter"></select></div><!-- Location Filter --><div class="filter-container"><label for="department-filter">LOCATION</label> <select id="location-filter"></select></div><div class="button" id="reset-filter-btn">reset filter</div></div><!-- ADD TAB --><div class="menu add-menu" id="add-menu"><div class="input-container"><label for="add-first-name" class="required">first name</label> <input type="text" id="add-first-name" class="add-tab-text-input add-tab-input"></div><div class="input-container"><label for="add-last-name" class="required">last name</label> <input type="text" id="add-last-name" class="add-tab-text-input add-tab-input"></div><div class="input-container"><label for="add-email">email</label> <input type="text" id="add-email" class="add-tab-input"></div><div class="input-container"><label for="add-job-title">job title</label> <input type="text" id="add-job-title" class="add-tab-input"></div><div class="input-container"><label for="add-department" class="required">department</label> <select id="add-department" class="add-tab-select-input add-tab-input"></select></div><div class="button disabled" id="add-entry" data-id="">create entry</div></div><!-- EDIT TAB --><div class="menu edit-menu" id="edit-menu"><div class="input-container"><label for="edit-first-name">first name</label> <input type="text" class="edit-tab-text-input" id="edit-first-name"></div><div class="input-container"><label for="edit-last-name">last name</label> <input type="text" class="edit-tab-text-input" id="edit-last-name"></div><div class="input-container"><label for="edit-email">email</label> <input type="text" class="edit-tab-text-input" id="edit-email"></div><div class="input-container"><label for="edit-job-title">job title</label> <input type="text" class="edit-tab-text-input" id="edit-job-title"></div><div class="input-container"><label for="edit-department">department</label> <select class="edit-tab-select-input" id="edit-department"></select></div><div class="button disabled" id="save-changes" data-id="">save changes</div></div><!-- DELETE TAB --><div class="menu delete-menu" id="delete-menu"><div class="delete-message">Are you sure you want to delete the currently selected entry?</div><div class="button delete-button" id="delete-entry">DELETE SELECTED</div></div></div><!-- Search Results Title --><div class="title-bar results-bar"><div class="results-title-container"><p>Search Results</p><div class="circle-button"></div></div><div class="counter-container"><span class="showing-counter">Showing <span class="showing-count">0</span> of <span class="total-count">0</span>.</span></div></div></div><!-- SEARCH RESULTS --><div class="table-header"><div class="header-cell cell cell-name">NAME</div><div class="header-cell cell cell-job-title">JOB TITLE</div><div class="header-cell cell cell-department">DEPARTMENT</div><div class="header-cell cell cell-location">LOCATION</div></div><div class="search-results-container auto-overflow"><div class="card-container selected-results-container"></div><div class="table-container"></div></div><!-- BOTTOM TAB CONTAINER --><div class="bottom-tab-container"><div class="bottom-tab b-right">edit departments</div><div class="bottom-tab">edit locations</div></div><!-- EDIT DEPARTMENTS MENU --><div class="bottom-menu edit-departments-menu"><div class="title-bar">Edit Departments</div><div class="input-container"><label for="department-select">department</label> <select id="department-select"></select></div><div class="input-container"><label for="department-name">change name</label> <input type="text" id="department-name"></div><div class="input-container"><label for="location-change">change location</label> <select id="location-change"></select></div><div class="button-container"><div class="button disabled" id="save-department">save department</div><div class="button delete-button disabled" id="delete-department">delete department</div></div></div><!-- EDIT LOCATIONS MENU --><div class="bottom-menu edit-locations-menu"><div class="title-bar">Edit Locations</div><div class="input-container"><label for="location-select">location</label> <select id="location-select"></select></div><div class="input-container"><label for="location-name">change name</label> <input type="text" id="location-name" value=""></div><div class="button-container"><div class="button disabled" id="save-location">save location</div><div class="button delete-button disabled" id="delete-location">delete location</div></div></div><!-- Scripts --><script type="application/javascript" src="js/vendors/jQuery/jquery.js"></script><script type="application/javascript" src="js/script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Directory</title>
+    <meta name="description" content="Manage your company's database via one simple interface" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <link rel="icon" href="./favicon.png" />
+  </head>
+  <body>
+
+    <div>
+      <!-- TITLE BAR -->
+      <div class="title-bar message-output">Company Directory</div>
+  
+      <!-- TAB BAR -->
+      <div class="tab-container">
+        <div class="tab r selected-tab" id="search-tab">search</div>
+        <div class="tab r l" id="add-tab">add</div>
+        <div class="tab r l" id="edit-tab">edit</div>
+        <div class="tab l" id="delete-tab">delete</div>
+      </div>
+      
+      <!-- Menu Container -->
+      <div class="menu-container">
+
+        <!-- SEARCH MENU -->
+        <div class="menu search-menu selected-menu">
+          <!-- Name Filter -->
+          <div class="filter-container">
+            <label for="name-filter">NAME</label>
+            <input type="text" id="name-filter">
+          </div>
+          <!-- Department Filter -->
+          <div class="filter-container">
+            <label for="department-filter">DEPARTMENT</label>
+            <select id="department-filter"></select>
+          </div>
+          <!-- Location Filter -->
+          <div class="filter-container">
+            <label for="department-filter">LOCATION</label>
+            <select id="location-filter">
+            </select>
+          </div>
+          <div class="button" id="reset-filter-btn">
+            reset filter
+          </div>
+        </div>
+
+        <!-- ADD TAB -->
+        <div class="menu add-menu" id="add-menu">
+
+          <div class="input-container">
+            <label for="add-first-name" class="required">first name</label>
+            <input type="text" id="add-first-name" class="add-tab-text-input add-tab-input" />
+          </div>
+
+          <div class="input-container">
+            <label for="add-last-name" class="required">last name</label>
+            <input type="text" id="add-last-name" class="add-tab-text-input add-tab-input" />
+          </div>
+
+          <div class="input-container">
+            <label for="add-email">email</label>
+            <input type="text" id="add-email" class="add-tab-input" />
+          </div>
+
+          <div class="input-container">
+            <label for="add-job-title">job title</label>
+            <input type="text" id="add-job-title" class="add-tab-input" />
+          </div>
+
+          <div class="input-container">
+            <label for="add-department" class="required">department</label>
+            <select id="add-department" class="add-tab-select-input add-tab-input"></select>
+          </div>
+
+          <div class="button disabled" id="add-entry" data-id="">create entry</div>
+
+        </div>
+
+        <!-- EDIT TAB -->
+        <div class="menu edit-menu" id="edit-menu">
+
+          <div class="input-container">
+            <label for="edit-first-name">first name</label>
+            <input type="text" class="edit-tab-text-input" id="edit-first-name" />
+          </div>
+
+          <div class="input-container">
+            <label for="edit-last-name">last name</label>
+            <input type="text" class="edit-tab-text-input" id="edit-last-name" />
+          </div>
+
+          <div class="input-container">
+            <label for="edit-email">email</label>
+            <input type="text" class="edit-tab-text-input" id="edit-email" />
+          </div>
+
+          <div class="input-container">
+            <label for="edit-job-title">job title</label>
+            <input type="text" class="edit-tab-text-input" id="edit-job-title" />
+          </div>
+
+          <div class="input-container">
+            <label for="edit-department">department</label>
+            <select class="edit-tab-select-input" id="edit-department"></select>
+          </div>
+
+          <div class="button disabled" id="save-changes" data-id="">save changes</div>
+
+        </div>
+        <!-- DELETE TAB -->
+        <div class="menu delete-menu" id="delete-menu">
+          <div class="delete-message">Are you sure you want to delete the currently selected entry?</div>
+          <div class="button delete-button" id="delete-entry">DELETE SELECTED</div>
+        </div>
+      </div>
+
+      <!-- Search Results Title -->
+      <div class="title-bar results-bar">
+
+        <div class="results-title-container">
+          <p>Search Results</p>
+          <div class="circle-button"></div>
+        </div>
+
+        <div class="counter-container">
+          <span class="showing-counter">Showing <span class="showing-count">0</span> of <span class="total-count">0</span>.</span>
+        </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <!-- SEARCH RESULTS -->
+    <div class="table-header">
+      <div class="header-cell cell cell-name">NAME</div>
+      <div class="header-cell cell cell-job-title">JOB TITLE</div>
+      <div class="header-cell cell cell-department">DEPARTMENT</div>
+      <div class="header-cell cell cell-location">LOCATION</div>
+    </div>
+    
+    <div class="search-results-container auto-overflow">
+      <div class="card-container selected-results-container"></div>
+      <div class='table-container'></div>
+    </div>
+   
+    <!-- BOTTOM TAB CONTAINER -->
+    <div class="bottom-tab-container">
+      <div class="bottom-tab b-right">edit departments</div>
+      <div class="bottom-tab">edit locations</div>
+    </div>
+  
+    <!-- EDIT DEPARTMENTS MENU -->
+    <div class="bottom-menu edit-departments-menu">
+      <div class="title-bar">Edit Departments</div>
+
+      <div class="input-container">
+        <label for="department-select">department</label>
+        <select id="department-select"></select>
+      </div>
+
+      <div class="input-container">
+        <label for="department-name">change name</label>
+        <input type="text" id="department-name" />
+      </div>
+
+      <div class="input-container">
+        <label for="location-change">change location</label>
+        <select id="location-change"></select>
+      </div>
+
+      <div class="button-container">
+        <div class="button disabled" id="save-department">save department</div>
+        <div class="button delete-button disabled" id="delete-department">delete department</div>
+      </div>
+    </div>
+
+    <!-- EDIT LOCATIONS MENU -->
+    <div class="bottom-menu edit-locations-menu">
+      <div class="title-bar">Edit Locations</div>
+
+      <div class="input-container">
+        <label for="location-select">location</label>
+        <select id="location-select"></select>
+      </div>
+
+      <div class="input-container">
+        <label for="location-name">change name</label>
+        <input type="text" id="location-name" value="" />
+      </div>
+
+      <div class="button-container">
+        <div class="button disabled" id="save-location">save location</div>
+        <div class="button delete-button disabled" id="delete-location">delete location</div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="application/javascript" src="js/vendors/jQuery/jquery.js"></script>
+    <script type="application/javascript" src="js/script.js"></script>
+  </body>
+</html>
