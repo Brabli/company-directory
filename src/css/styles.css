@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
 html {
   box-sizing: border-box;
   font-size: 16px;
@@ -24,30 +26,35 @@ input, select {
 /* ALL OF ABOVE IS RESET CODE */
 
 html {
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-family: 'Roboto', sans-serif;
   height: 100%;
 }
 
 
 :root {
-  --navbar-grey: rgb(76, 76, 76);
-  --backing-grey: rgb(120, 120, 120);
-  --selected-grey: rgb(171, 171, 171);
-  --selected-orange: rgb(255, 127, 35);
-  --alt-grey: rgb(137, 137, 137);
-  --even-grey: rgb(229, 229, 229);
-  --odd-grey: rgb(208, 208, 208);
-  --active-green: rgb(28, 113, 28);
+  --navbar-grey: #0059b9;
+  --table-header: #4685c8;
+  --border-grey: rgb(150, 150, 150);
+  --backing-grey: white;
+  --selected-grey: #eaf4ff;
+
+  --selected-orange:#8cc4fc;
+  
+  --tab-background: #a7d2ff;
+
+  --even-grey: #e8f4ff;
+  --odd-grey: #cce5ff;
+  --active-green: rgb(25, 171, 25);
+  
   --max-menu-width: 30rem;
+
+  --btn-disabled: snow;
+  --btn-green: rgb(27, 115, 27);
+  --btn-red: rgb(222, 26, 26);
+  --btn-red-active: rgb(145, 7, 7);
+  --btn-text-grey: #636363;
 }
 
-.alt-grey {
-  background-color: var(--alt-grey);
-}
-
-.b-right {
-  border-right: 1px solid black;
-}
 
 body {
   display: flex;
@@ -65,31 +72,51 @@ body {
   color: snow;
   padding: 0 0.3rem;
   font-size: 0.8rem;
-  border-bottom: 1px solid black;
   width: 100%;
 }
 
 .tab-container {
   height: 2rem;
   display: flex;
+  background-color: var(--tab-background);
 }
 
 .tab {
   cursor: pointer;
+  font-size: 1.1rem;
   text-transform: uppercase;
   width: 25%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--selected-orange);
-  border-bottom: 1px solid black;
+  background-color: var(--tab-background);
+  transition: 0.1s;
+}
+
+.tab:hover {
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.bottom-tab:hover {
+  text-shadow: 1px 1px 1px rgba(255,255,255,0.4);
+}
+
+.r {
+  border-top-right-radius: 0.7rem;
+}
+
+.l {
+  border-top-left-radius: 0.7rem;
 }
 
 .selected-tab {
   background-color: var(--selected-grey);
-  border-bottom-color: var(--selected-grey);
   font-weight: bold;
-  text-decoration: underline;
+
+}
+
+.selected-tab.b-right {
+  border-top-right-radius: 0.7rem;
 }
 
 .button {
@@ -102,23 +129,24 @@ body {
   align-items: center;
   width: 6rem;
   height: 2rem;
-  border: 1px solid black;
   margin-top: 0.75rem;
-  border-radius: 0.6rem;
+  border-radius: 0.8rem;
   /* background-color: var(--backing-grey); */
   background-color: var(--active-green);
   color: snow;
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  
 }
 .button:active {
-  /* background-color: var(--selected-orange); */
-  color: lime;
-  border: 1px solid lime;
+  background-color: var(--btn-green);
+  /* color: lime;
+  border: 1px solid lime; */
+  /* box-shadow: inset 1px 1px 4px 1px rgba(0, 0, 0, 0.4); */
 }
 
 .menu {
   display: none;
   background-color: var(--selected-grey);
-  border-bottom: 1px solid black;
 }
 
 .search-menu {
@@ -136,6 +164,7 @@ body {
     }
 
     .filter-container label {
+      font-style: italic;
       font-size: 0.85rem;
       padding-right: 1rem;
       padding-bottom: 0.1rem;
@@ -146,6 +175,7 @@ body {
     .filter-container select, .filter-container input {
       height: 1.2rem;
       width: 60%;
+      border-radius: 0.5rem;
     }
 
     #reset-filter-btn {
@@ -171,6 +201,7 @@ body {
     }
 
     .input-container label {
+      font-style: italic;
       flex-grow: 1;
       text-transform: uppercase;
       font-size: 0.85rem;
@@ -182,6 +213,7 @@ body {
       flex-grow: 6;
       max-width: 60%;
       height: 1.2rem;
+      border-radius: 0.5rem;
     }
 
 
@@ -199,12 +231,13 @@ body {
     }
 
     .delete-button {
-      background-color: rgb(149, 16, 16);
+      padding: 0 0.2rem;
+      background-color: var(--btn-red);
     }
 
     .delete-button:active {
       border-color: black;
-      background-color: red;
+      background-color: var(--btn-red-active);
       color: white;
     }
 
@@ -269,9 +302,9 @@ body {
   color: white;
   height: 1.5rem;
   font-size: 0.7rem;
-  border-bottom: 1px solid black;
+
   width: 100%;
-  background-color: var(--backing-grey);
+  background-color: var(--table-header);
 }
 
 .person-row  {
@@ -279,7 +312,7 @@ body {
   cursor: pointer;
   font-size: 0.7rem;
   display: flex;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid var(--border-grey);
 }
     .even {
       background-color: var(--even-grey);
@@ -290,7 +323,9 @@ body {
     }
 
     .selected-row {
+      font-weight: bold;
       background-color: var(--selected-orange);
+      transition: 0.05s;
     }
 
 .cell {
@@ -316,7 +351,7 @@ body {
   justify-content: space-evenly;
   padding: 0.1rem;
   overflow: auto;
-  background-color: var(--backing-grey);
+  background-color: var(--selected-grey);
   /* Margin makes sure Edit Tabs don't cover up search results. */
   margin-bottom: 2rem;
 }
@@ -332,7 +367,7 @@ body {
   display: none;
   font-size: 1em;
   margin: 0.1rem;
-  border: 1px solid black;
+  border: 1px solid var(--border-grey); /* border grey? */
   border-radius: 0.5rem;
   height: 9rem;
   width: 6rem;
@@ -340,11 +375,12 @@ body {
   flex-direction: column;
   text-align: center;
   justify-content: space-between;
-  background-color: snow;
+  background-color: white;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  transition: 0.05s;
 }
 
 .selected-card {
-  border: 2px solid black;
   background-color: var(--selected-orange);
 }
 
@@ -358,7 +394,6 @@ body {
   margin: 0.1rem 0;
   font-size: 0.9em;
   font-weight: bold;
-  text-decoration: underline;
 }
 
 .card-email {
@@ -402,7 +437,6 @@ body {
   align-items: center;
   justify-content: center;
   width: 50%;
-  border-top: 2px solid black;
   overflow: hidden;
 }
     .selected-bottom-tab {
@@ -418,7 +452,6 @@ body {
   position: absolute;
   bottom: 0;
   width: 100%;
-  border-top: 1px solid black;
   background-color: var(--selected-grey);
 }
     .selected-bottom-menu {
@@ -448,14 +481,14 @@ body {
 
 .disabled {
   cursor: default;
-  background-color: var(--backing-grey);
-  color: var(--navbar-grey);
+  background-color: var(--btn-disabled);
+  color: var(--btn-text-grey);
 }
 
 .button.disabled:active {
-  border-color: black;
-  color: var(--navbar-grey);
-  background-color: var(--backing-grey);
+  border: none;
+  color: var(--btn-text-grey);
+  background-color: var(--btn-disabled);
 }
 
 .required:after {
